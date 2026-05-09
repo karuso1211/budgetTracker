@@ -72,7 +72,8 @@
     .stat-value.income { color: var(--green); }
     .stat-value.expense { color: var(--red); }
     .stat-value.savings { color: var(--green); }
-    .balance-pct { display: none; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px; margin-top: 4px; letter-spacing: 0.3px; }
+    .stat-value-row { display: flex; align-items: center; gap: 6px; }
+    .balance-pct { display: none; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 20px; letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0; }
     .balance-pct.visible { display: inline-block; }
     .balance-pct.high  { background: rgba(34,197,94,0.15);  color: var(--green); }
     .balance-pct.mid   { background: rgba(251,191,36,0.15); color: var(--yellow); }
@@ -587,8 +588,10 @@
       <div class="balance-row">
         <div class="balance-stat">
           <div class="stat-label">Initial Balance</div>
-          <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
-          <div id="balancePct" class="balance-pct"></div>
+          <div class="stat-value-row">
+            <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
+            <div id="balancePct" class="balance-pct"></div>
+          </div>
         </div>
         <div class="balance-stat">
           <div class="stat-label">Total Expenses</div>
@@ -853,7 +856,7 @@
       if (spendable > 0) {
         const pct = Math.max(0, Math.round((balance / spendable) * 100));
         const tier = pct > 60 ? 'high' : pct > 30 ? 'mid' : 'low';
-        pctEl.textContent = pct + '% remaining';
+        pctEl.textContent = pct + '%';
         pctEl.className = 'balance-pct visible ' + tier;
       } else {
         pctEl.className = 'balance-pct';
