@@ -71,6 +71,7 @@
     .balance-stat .stat-value { font-size: 16px; font-weight: 700; }
     .stat-value.income { color: var(--green); }
     .stat-value.expense { color: var(--red); }
+    .stat-value.savings { color: var(--green); }
 
     /* Section */
     .section { margin: 16px 16px 0; }
@@ -289,6 +290,30 @@
     .cat-health { background: rgba(34,197,94,0.15); }
     .cat-entertainment { background: rgba(251,146,60,0.15); }
     .cat-other { background: rgba(148,163,184,0.15); }
+    .cat-savings { background: rgba(34,197,94,0.18); }
+
+    /* Savings Card */
+    .savings-card {
+      margin: 16px 16px 0;
+      background: linear-gradient(135deg, #14532d 0%, #1e293b 100%);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .savings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .savings-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .savings-badge { font-size: 11px; font-weight: 700; background: rgba(34,197,94,0.2); color: var(--green); padding: 3px 9px; border-radius: 100px; border: 1px solid rgba(34,197,94,0.3); }
+    .savings-amount { font-size: 32px; font-weight: 800; color: var(--green); letter-spacing: -1px; line-height: 1; }
+    .savings-list-wrap { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .savings-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.2s ease; }
+    .savings-item-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: rgba(34,197,94,0.15); }
+    .savings-item-info { flex: 1; min-width: 0; }
+    .savings-item-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .savings-item-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .savings-item-amount { font-size: 15px; font-weight: 700; color: var(--green); flex-shrink: 0; }
+    .btn-delete-saving { background: transparent; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; }
+    .btn-delete-saving:active { color: var(--red); }
+    .hidden { display: none; }
 
     /* Sidebar overlay */
     .sidebar-overlay {
@@ -437,7 +462,21 @@
           <div class="stat-label">Total Expenses</div>
           <div class="stat-value expense" id="expenseDisplay">&#8369;0.00</div>
         </div>
+        <div class="balance-stat">
+          <div class="stat-label">Total Savings</div>
+          <div class="stat-value savings" id="savingsDisplay">&#8369;0.00</div>
+        </div>
       </div>
+    </div>
+
+    <!-- Savings Card -->
+    <div class="savings-card hidden" id="savingsCard">
+      <div class="savings-header">
+        <div class="savings-label">Savings</div>
+        <div class="savings-badge">🐷 Locked Away</div>
+      </div>
+      <div class="savings-amount" id="savingsCardAmount">&#8369;0.00</div>
+      <div class="savings-list-wrap" id="savingsList"></div>
     </div>
 
     <!-- Salary Section -->
@@ -474,6 +513,7 @@
           <option value="bills">💡 Bills</option>
           <option value="health">💊 Health</option>
           <option value="entertainment">🎮 Entertainment</option>
+          <option value="savings">🐷 Savings</option>
           <option value="other">📦 Other</option>
         </select>
         <button class="btn-primary" onclick="addExpense()">+ Add Expense</button>
@@ -524,6 +564,7 @@
       bills:         { icon: '💡', cls: 'cat-bills' },
       health:        { icon: '💊', cls: 'cat-health' },
       entertainment: { icon: '🎮', cls: 'cat-entertainment' },
+      savings:       { icon: '🐷', cls: 'cat-savings' },
       other:         { icon: '📦', cls: 'cat-other' },
     };
 
@@ -534,11 +575,12 @@
         const s = localStorage.getItem('budgetTracker');
         if (s) return JSON.parse(s);
       } catch {}
-      return { salary: 0, expenses: [], history: [] };
+      return { salary: 0, expenses: [], savings: [], history: [] };
     }
 
     function saveState() {
       if (!state.history) state.history = [];
+      if (!state.savings) state.savings = [];
       localStorage.setItem('budgetTracker', JSON.stringify(state));
     }
 
@@ -557,8 +599,11 @@
 
     function render() {
       if (!state.history) state.history = [];
+      if (!state.savings) state.savings = [];
+
       const totalExpenses = state.expenses.reduce((s, e) => s + e.amount, 0);
-      const balance = state.salary - totalExpenses;
+      const totalSavings = state.savings.reduce((s, e) => s + e.amount, 0);
+      const balance = state.salary - totalExpenses - totalSavings;
 
       const balEl = document.getElementById('balanceDisplay');
       balEl.textContent = fmt(balance);
@@ -566,7 +611,33 @@
 
       document.getElementById('incomeDisplay').textContent = fmt(state.salary);
       document.getElementById('expenseDisplay').textContent = fmt(totalExpenses);
+      document.getElementById('savingsDisplay').textContent = fmt(totalSavings);
       document.getElementById('salaryDisplay').textContent = fmt(state.salary);
+
+      // Render savings card
+      const savingsCard = document.getElementById('savingsCard');
+      const savingsList = document.getElementById('savingsList');
+      if (state.savings.length === 0) {
+        savingsCard.classList.add('hidden');
+        savingsList.innerHTML = '';
+      } else {
+        savingsCard.classList.remove('hidden');
+        document.getElementById('savingsCardAmount').textContent = fmt(totalSavings);
+        savingsList.innerHTML = state.savings.slice().reverse().map(sv => {
+          const date = new Date(sv.date);
+          const dateStr = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          return `
+            <div class="savings-item">
+              <div class="savings-item-icon">🐷</div>
+              <div class="savings-item-info">
+                <div class="savings-item-name">${escHtml(sv.name)}</div>
+                <div class="savings-item-date">${dateStr}</div>
+              </div>
+              <div class="savings-item-amount">${fmt(sv.amount)}</div>
+              <button class="btn-delete-saving" onclick="deleteSaving('${sv.id}')" aria-label="Delete">✕</button>
+            </div>`;
+        }).join('');
+      }
 
       const hasExpenses = state.expenses.length > 0;
       const list = document.getElementById('expensesList');
@@ -613,7 +684,8 @@
       listEl.innerHTML = history.slice().reverse().map((week, ri) => {
         const i = history.length - 1 - ri;
         const totalSpent = week.expenses.reduce((s, e) => s + e.amount, 0);
-        const balance = week.salary - totalSpent;
+        const totalSaved = (week.savings || []).reduce((s, e) => s + e.amount, 0);
+        const balance = week.salary - totalSpent - totalSaved;
         const balCls = balance >= 0 ? 'pos' : 'neg';
 
         const expRows = week.expenses.length === 0
@@ -623,6 +695,14 @@
                 <span class="name">${escHtml(e.name)}</span>
                 <span class="amt">${fmt(e.amount)}</span>
               </div>`).join('');
+
+        const savRows = (week.savings || []).length === 0 ? '' : `
+          <div class="history-stat-row" style="margin-top:6px;"><span class="lbl" style="font-weight:700;">Savings</span></div>
+          ${week.savings.map(e => `
+              <div class="history-exp-item">
+                <span class="name">🐷 ${escHtml(e.name)}</span>
+                <span class="amt" style="color:var(--green);">${fmt(e.amount)}</span>
+              </div>`).join('')}`;
 
         return `
           <div class="history-card">
@@ -639,8 +719,9 @@
             <div class="history-body" id="hbody-${i}">
               <div class="history-stat-row"><span class="lbl">Salary</span><span class="val g">${fmt(week.salary)}</span></div>
               <div class="history-stat-row"><span class="lbl">Total Spent</span><span class="val r">${fmt(totalSpent)}</span></div>
+              ${totalSaved > 0 ? `<div class="history-stat-row"><span class="lbl">Total Saved</span><span class="val g">${fmt(totalSaved)}</span></div>` : ''}
               <div class="history-stat-row"><span class="lbl">Remaining</span><span class="val ${balCls}">${fmt(balance)}</span></div>
-              <div class="history-exp-list">${expRows}</div>
+              <div class="history-exp-list">${expRows}${savRows}</div>
               <div class="history-actions">
                 <button class="btn-restore-week" onclick="restoreWeek(${i})">↩ Restore this week</button>
                 <button class="btn-delete-week" onclick="deleteWeek(${i})">Delete</button>
@@ -658,24 +739,30 @@
     }
 
     function saveWeek() {
-      if (state.expenses.length === 0) { showToast('No expenses to save'); return; }
+      if (state.expenses.length === 0 && (!state.savings || state.savings.length === 0)) {
+        showToast('No expenses to save'); return;
+      }
 
       const now = new Date();
       const label = 'Week of ' + now.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
 
       if (!state.history) state.history = [];
+      if (!state.savings) state.savings = [];
       const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
-      const remaining = state.salary - totalSpent;
+      const totalSavings = state.savings.reduce((s, e) => s + e.amount, 0);
+      const remaining = state.salary - totalSpent - totalSavings;
 
       state.history.push({
         label,
         savedAt: now.toISOString(),
         salary: state.salary,
         expenses: [...state.expenses],
+        savings: [...state.savings],
       });
 
       state.salary = remaining > 0 ? remaining : 0;
       state.expenses = [];
+      state.savings = [];
       saveState();
       render();
       showToast('Week saved! Starting fresh.');
@@ -697,11 +784,13 @@
           savedAt: now.toISOString(),
           salary: state.salary,
           expenses: [...state.expenses],
+          savings: [...(state.savings || [])],
         });
       }
 
       state.salary = week.salary;
       state.expenses = week.expenses.map(e => ({ ...e, id: Date.now().toString() + Math.random() }));
+      state.savings = (week.savings || []).map(e => ({ ...e, id: Date.now().toString() + Math.random() }));
       state.history.splice(hasCurrent ? i : i, 1);
       saveState();
       render();
@@ -745,14 +834,23 @@
       if (!name) { showToast('Please enter a description'); document.getElementById('expenseName').focus(); return; }
       if (isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount'); document.getElementById('expenseAmount').focus(); return; }
 
-      state.expenses.push({ id: Date.now().toString(), name, amount, category, date: new Date().toISOString() });
+      const entry = { id: Date.now().toString(), name, amount, category, date: new Date().toISOString() };
+
+      if (category === 'savings') {
+        if (!state.savings) state.savings = [];
+        state.savings.push(entry);
+        showToast('Saved to Savings! 🐷');
+      } else {
+        state.expenses.push(entry);
+        showToast('Expense added!');
+      }
+
       saveState();
       render();
 
       document.getElementById('expenseName').value = '';
       document.getElementById('expenseAmount').value = '';
       document.getElementById('expenseCategory').value = 'food';
-      showToast('Expense added!');
     }
 
     function deleteExpense(id) {
@@ -762,11 +860,19 @@
       showToast('Expense removed');
     }
 
+    function deleteSaving(id) {
+      state.savings = state.savings.filter(e => e.id !== id);
+      saveState();
+      render();
+      showToast('Saving removed');
+    }
+
     async function confirmReset() {
       const ok = await showModal('Reset without saving?', 'All current expenses will be permanently lost.', 'Reset');
       if (ok) {
         state.salary = 0;
         state.expenses = [];
+        state.savings = [];
         saveState();
         render();
         showToast('Slate cleared');
