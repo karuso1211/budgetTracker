@@ -289,84 +289,202 @@
     .cat-health { background: rgba(34,197,94,0.15); }
     .cat-entertainment { background: rgba(251,146,60,0.15); }
     .cat-other { background: rgba(148,163,184,0.15); }
+
+    /* Sidebar overlay */
+    .sidebar-overlay {
+      position: fixed; inset: 0; z-index: 90;
+      background: rgba(0,0,0,0.5);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .sidebar-overlay.show { opacity: 1; pointer-events: all; }
+
+    /* Sidebar drawer */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 240px;
+      z-index: 100;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: calc(var(--safe-top) + 16px) 12px 24px;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sidebar.open { transform: translateX(0); }
+
+    .sidebar-brand {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      padding: 8px 12px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .sidebar-brand span { color: var(--green); }
+
+    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+
+    .sidebar-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar-btn:hover { background: var(--surface2); color: var(--text); }
+    .sidebar-btn.active {
+      background: rgba(34,197,94,0.12);
+      color: var(--green);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+    .sidebar-btn .s-icon { font-size: 18px; flex-shrink: 0; }
+
+    /* Hamburger */
+    .btn-menu {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px 4px 0;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Header inner layout */
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-text { flex: 1; }
+
+    /* Views */
+    .view { display: none; }
+    .view.active { display: block; }
   </style>
 </head>
 <body>
 
+  <!-- Sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">Budget<span>Tracker</span></div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-btn active" id="navTracker" onclick="switchView('tracker')">
+        <span class="s-icon">💰</span> Budget Tracker
+      </button>
+      <button class="sidebar-btn" id="navHistory" onclick="switchView('history')">
+        <span class="s-icon">📅</span> History
+      </button>
+    </nav>
+  </aside>
+
   <div class="header">
-    <h1>Budget Tracker</h1>
-    <div class="subtitle" id="headerDate"></div>
-  </div>
-
-  <!-- Balance Card -->
-  <div class="balance-card">
-    <div class="balance-label">Remaining Balance</div>
-    <div class="balance-amount" id="balanceDisplay">&#8369;0.00</div>
-    <div class="balance-row">
-      <div class="balance-stat">
-        <div class="stat-label">Total Income</div>
-        <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
-      </div>
-      <div class="balance-stat">
-        <div class="stat-label">Total Expenses</div>
-        <div class="stat-value expense" id="expenseDisplay">&#8369;0.00</div>
+    <div class="header-inner">
+      <button class="btn-menu" onclick="openSidebar()" aria-label="Menu">☰</button>
+      <div class="header-text">
+        <h1 id="headerTitle">Budget Tracker</h1>
+        <div class="subtitle" id="headerDate"></div>
       </div>
     </div>
   </div>
 
-  <!-- Salary Section -->
-  <div class="section">
-    <div class="section-title">Income / Salary</div>
-    <div class="salary-panel">
-      <div class="salary-display">
-        <div>
-          <div class="current-label">Current Salary</div>
-          <div class="current" id="salaryDisplay">&#8369;0.00</div>
+  <!-- Budget Tracker View -->
+  <div class="view active" id="viewTracker">
+
+    <!-- Balance Card -->
+    <div class="balance-card">
+      <div class="balance-label">Remaining Balance</div>
+      <div class="balance-amount" id="balanceDisplay">&#8369;0.00</div>
+      <div class="balance-row">
+        <div class="balance-stat">
+          <div class="stat-label">Total Income</div>
+          <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
         </div>
-        <button class="btn-edit" onclick="toggleSalaryForm()">Edit</button>
-      </div>
-      <div class="salary-form" id="salaryForm">
-        <input type="text" id="salaryInput" placeholder="Enter salary amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
-        <div class="input-row">
-          <button class="btn-save" onclick="saveSalary()">Save</button>
-          <button class="btn-cancel" onclick="toggleSalaryForm()">Cancel</button>
+        <div class="balance-stat">
+          <div class="stat-label">Total Expenses</div>
+          <div class="stat-value expense" id="expenseDisplay">&#8369;0.00</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Add Expense Section -->
-  <div class="section">
-    <div class="section-title">Add Expense</div>
-    <div class="add-panel">
-      <input type="text" id="expenseName" placeholder="Expense description" maxlength="50">
-      <input type="text" id="expenseAmount" placeholder="Amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
-      <select id="expenseCategory">
-        <option value="food">🍔 Food</option>
-        <option value="transport">🚗 Transport</option>
-        <option value="shopping">🛍 Shopping</option>
-        <option value="bills">💡 Bills</option>
-        <option value="health">💊 Health</option>
-        <option value="entertainment">🎮 Entertainment</option>
-        <option value="other">📦 Other</option>
-      </select>
-      <button class="btn-primary" onclick="addExpense()">+ Add Expense</button>
+    <!-- Salary Section -->
+    <div class="section">
+      <div class="section-title">Income / Salary</div>
+      <div class="salary-panel">
+        <div class="salary-display">
+          <div>
+            <div class="current-label">Current Salary</div>
+            <div class="current" id="salaryDisplay">&#8369;0.00</div>
+          </div>
+          <button class="btn-edit" onclick="toggleSalaryForm()">Edit</button>
+        </div>
+        <div class="salary-form" id="salaryForm">
+          <input type="text" id="salaryInput" placeholder="Enter salary amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+          <div class="input-row">
+            <button class="btn-save" onclick="saveSalary()">Save</button>
+            <button class="btn-cancel" onclick="toggleSalaryForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Expenses List -->
-  <div class="section">
-    <div class="section-title">Expenses</div>
-    <div class="expenses-list" id="expensesList"></div>
-    <button class="btn-save-week" id="saveWeekBtn" onclick="saveWeek()" style="display:none;">💾 Save Week &amp; Start Fresh</button>
-    <button class="btn-reset" id="resetBtn" onclick="confirmReset()" style="display:none;">Reset Without Saving</button>
-  </div>
+    <!-- Add Expense Section -->
+    <div class="section">
+      <div class="section-title">Add Expense</div>
+      <div class="add-panel">
+        <input type="text" id="expenseName" placeholder="Expense description" maxlength="50">
+        <input type="text" id="expenseAmount" placeholder="Amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+        <select id="expenseCategory">
+          <option value="food">🍔 Food</option>
+          <option value="transport">🚗 Transport</option>
+          <option value="shopping">🛍 Shopping</option>
+          <option value="bills">💡 Bills</option>
+          <option value="health">💊 Health</option>
+          <option value="entertainment">🎮 Entertainment</option>
+          <option value="other">📦 Other</option>
+        </select>
+        <button class="btn-primary" onclick="addExpense()">+ Add Expense</button>
+      </div>
+    </div>
 
-  <!-- Weekly History -->
-  <div class="section" id="historySection" style="margin-bottom: 16px; display:none;">
-    <div class="section-title">Past Weeks</div>
-    <div class="history-list" id="historyList"></div>
-  </div>
+    <!-- Expenses List -->
+    <div class="section">
+      <div class="section-title">Expenses</div>
+      <div class="expenses-list" id="expensesList"></div>
+      <button class="btn-save-week" id="saveWeekBtn" onclick="saveWeek()" style="display:none;">💾 Save Week &amp; Start Fresh</button>
+      <button class="btn-reset" id="resetBtn" onclick="confirmReset()" style="display:none;">Reset Without Saving</button>
+    </div>
+
+  </div><!-- /viewTracker -->
+
+  <!-- History View -->
+  <div class="view" id="viewHistory">
+    <div class="section" style="margin-bottom: 16px;">
+      <div class="section-title">Past Weeks</div>
+      <div class="history-list" id="historyList"></div>
+      <div id="historyEmpty" class="empty-state" style="display:none;">
+        <div class="icon">📅</div>
+        <p>No history yet.<br>Save a week to see it here.</p>
+      </div>
+    </div>
+  </div><!-- /viewHistory -->
 
   <!-- Modal -->
   <div class="modal-backdrop" id="modalBackdrop">
@@ -466,15 +584,16 @@
 
     function renderHistory() {
       const history = state.history || [];
-      const section = document.getElementById('historySection');
       const listEl = document.getElementById('historyList');
+      const emptyEl = document.getElementById('historyEmpty');
 
       if (history.length === 0) {
-        section.style.display = 'none';
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
         return;
       }
 
-      section.style.display = 'block';
+      emptyEl.style.display = 'none';
       listEl.innerHTML = history.slice().reverse().map((week, ri) => {
         const i = history.length - 1 - ri;
         const totalSpent = week.expenses.reduce((s, e) => s + e.amount, 0);
@@ -707,6 +826,37 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
+
+    // Sidebar
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('show');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+    }
+
+    let activeView = 'tracker';
+    function switchView(view) {
+      activeView = view;
+      document.getElementById('viewTracker').classList.toggle('active', view === 'tracker');
+      document.getElementById('viewHistory').classList.toggle('active', view === 'history');
+      document.getElementById('navTracker').classList.toggle('active', view === 'tracker');
+      document.getElementById('navHistory').classList.toggle('active', view === 'history');
+      document.getElementById('headerTitle').textContent = view === 'tracker' ? 'Budget Tracker' : 'History';
+      closeSidebar();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Close sidebar on swipe left
+    (function() {
+      let startX = 0;
+      document.getElementById('sidebar').addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+      document.getElementById('sidebar').addEventListener('touchend', e => {
+        if (startX - e.changedTouches[0].clientX > 60) closeSidebar();
+      }, { passive: true });
+    })();
 
     updateDate();
     render();
