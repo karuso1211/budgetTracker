@@ -72,6 +72,11 @@
     .stat-value.income { color: var(--green); }
     .stat-value.expense { color: var(--red); }
     .stat-value.savings { color: var(--green); }
+    .balance-pct { display: none; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px; margin-top: 4px; letter-spacing: 0.3px; }
+    .balance-pct.visible { display: inline-block; }
+    .balance-pct.high  { background: rgba(34,197,94,0.15);  color: var(--green); }
+    .balance-pct.mid   { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .balance-pct.low   { background: rgba(248,113,113,0.15); color: var(--red); }
 
     /* Mini cards row */
     .mini-cards-row { display: flex; gap: 12px; margin: 12px 16px 0; }
@@ -122,6 +127,7 @@
     .salary-display .current-label { font-size: 12px; color: var(--muted); }
     .btn-edit { background: var(--surface2); border: 1px solid var(--border); color: var(--blue); font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
     .btn-edit:active { opacity: 0.7; }
+    .btn-group { display: flex; gap: 8px; }
     .salary-form {
       display: flex;
       flex-direction: column;
@@ -580,8 +586,9 @@
       <div class="balance-amount" id="overviewBalance">&#8369;0.00</div>
       <div class="balance-row">
         <div class="balance-stat">
-          <div class="stat-label">Total Income</div>
+          <div class="stat-label">Initial Balance</div>
           <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
+          <div id="balancePct" class="balance-pct"></div>
         </div>
         <div class="balance-stat">
           <div class="stat-label">Total Expenses</div>
@@ -627,19 +634,29 @@
       <div class="balance-amount" id="balanceDisplay">&#8369;0.00</div>
     </div>
 
-    <!-- Salary Section -->
+    <!-- Balance Section -->
     <div class="section">
-      <div class="section-title">Income / Salary</div>
+      <div class="section-title">Balance</div>
       <div class="salary-panel">
         <div class="salary-display">
           <div>
-            <div class="current-label">Current Salary</div>
+            <div class="current-label">Initial Balance</div>
             <div class="current" id="salaryDisplay">&#8369;0.00</div>
           </div>
-          <button class="btn-edit" onclick="toggleSalaryForm()">Edit</button>
+          <div class="btn-group">
+            <button class="btn-edit" onclick="toggleAddMoneyForm()">+ Add</button>
+            <button class="btn-edit" onclick="toggleSalaryForm()">Edit</button>
+          </div>
+        </div>
+        <div class="salary-form" id="addMoneyForm">
+          <input type="text" id="addMoneyInput" placeholder="Amount to add" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+          <div class="input-row">
+            <button class="btn-save" onclick="addMoney()">Add</button>
+            <button class="btn-cancel" onclick="toggleAddMoneyForm()">Cancel</button>
+          </div>
         </div>
         <div class="salary-form" id="salaryForm">
-          <input type="text" id="salaryInput" placeholder="Enter salary amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+          <input type="text" id="salaryInput" placeholder="Set balance amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
           <div class="input-row">
             <button class="btn-save" onclick="saveSalary()">Save</button>
             <button class="btn-cancel" onclick="toggleSalaryForm()">Cancel</button>
@@ -776,6 +793,7 @@
     function saveState() {
       if (!state.history) state.history = [];
       if (!state.savings) state.savings = [];
+      if (!state.incomeLog) state.incomeLog = [];
       if (!state.bills) state.bills = [];
       if (!state.billHistory) state.billHistory = [];
       localStorage.setItem('budgetTracker', JSON.stringify(state));
@@ -825,10 +843,21 @@
       const ovBal = document.getElementById('overviewBalance');
       if (ovBal) { ovBal.textContent = fmt(balance); ovBal.className = balCls; }
 
-      document.getElementById('incomeDisplay').textContent = fmt(state.salary);
+      const spendable = state.salary - totalSavings;
+      document.getElementById('incomeDisplay').textContent = fmt(spendable);
       document.getElementById('expenseDisplay').textContent = fmt(totalExpenses);
       document.getElementById('savingsDisplay').textContent = fmt(totalSavings);
-      document.getElementById('salaryDisplay').textContent = fmt(state.salary);
+      document.getElementById('salaryDisplay').textContent = fmt(spendable);
+
+      const pctEl = document.getElementById('balancePct');
+      if (spendable > 0) {
+        const pct = Math.max(0, Math.round((balance / spendable) * 100));
+        const tier = pct > 60 ? 'high' : pct > 30 ? 'mid' : 'low';
+        pctEl.textContent = pct + '% remaining';
+        pctEl.className = 'balance-pct visible ' + tier;
+      } else {
+        pctEl.className = 'balance-pct';
+      }
 
       // Render savings card
       const savingsCard = document.getElementById('savingsCard');
@@ -856,12 +885,13 @@
       }
 
       const hasExpenses = state.expenses.length > 0;
+      const hasSavings = state.savings && state.savings.length > 0;
       const list = document.getElementById('expensesList');
 
       if (!hasExpenses) {
         list.innerHTML = `<div class="empty-state"><div class="icon">💸</div><p>No expenses yet.<br>Add your first expense above.</p></div>`;
-        document.getElementById('saveWeekBtn').style.display = 'none';
-        document.getElementById('resetBtn').style.display = 'none';
+        document.getElementById('saveWeekBtn').style.display = (hasSavings ? 'block' : 'none');
+        document.getElementById('resetBtn').style.display = (hasSavings ? 'block' : 'none');
       } else {
         list.innerHTML = state.expenses.slice().reverse().map(exp => {
           const cat = CATEGORY[exp.category] || CATEGORY.other;
@@ -1009,6 +1039,7 @@
         repeat: bill.repeat || 'once',
         date: new Date().toISOString()
       });
+      state.salary = +(state.salary - bill.amount).toFixed(2);
       state.bills = state.bills.filter(b => b.id !== id);
       if (bill.repeat === 'monthly') {
         const next = new Date(bill.due + 'T00:00:00');
@@ -1018,8 +1049,7 @@
         state.bills.push({ id: Date.now().toString() + 'r', name: bill.name, due: nextDue, amount: bill.amount, repeat: 'monthly' });
       }
       saveState();
-      renderBills();
-      renderBillHistory();
+      render();
       showToast(bill.repeat === 'monthly' ? 'Paid! Next month\'s bill added 🔄' : 'Bill marked as paid! ✓');
     }
 
@@ -1060,9 +1090,9 @@
         date: new Date().toISOString()
       });
       bill.amount = remaining;
+      state.salary = +(state.salary - paid).toFixed(2);
       saveState();
-      renderBills();
-      renderBillHistory();
+      render();
       showToast(`Partial payment recorded — ${fmt(remaining)} remaining`);
     }
 
@@ -1165,6 +1195,16 @@
                 <span class="amt" style="color:var(--green);">${fmt(e.amount)}</span>
               </div>`).join('')}`;
 
+        const incomeRows = (week.incomeLog || []).length === 0 ? '' : `
+          <div class="history-stat-row" style="margin-top:6px;"><span class="lbl" style="font-weight:700;">Income / Salary</span></div>
+          ${(week.incomeLog || []).map(e => {
+            const d = new Date(e.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            return `<div class="history-exp-item">
+                <span class="name" style="color:var(--muted);font-size:12px;">${d}</span>
+                <span class="amt" style="color:var(--green);">+${fmt(e.amount)}</span>
+              </div>`;
+          }).join('')}`;
+
         return `
           <div class="history-card">
             <div class="history-header" onclick="toggleHistory(${i})">
@@ -1178,11 +1218,11 @@
               </div>
             </div>
             <div class="history-body" id="hbody-${i}">
-              <div class="history-stat-row"><span class="lbl">Salary</span><span class="val g">${fmt(week.salary)}</span></div>
+              <div class="history-stat-row"><span class="lbl">Balance</span><span class="val g">${fmt(week.salary)}</span></div>
               <div class="history-stat-row"><span class="lbl">Total Spent</span><span class="val r">${fmt(totalSpent)}</span></div>
               ${totalSaved > 0 ? `<div class="history-stat-row"><span class="lbl">Total Saved</span><span class="val g">${fmt(totalSaved)}</span></div>` : ''}
               <div class="history-stat-row"><span class="lbl">Remaining</span><span class="val ${balCls}">${fmt(balance)}</span></div>
-              <div class="history-exp-list">${expRows}${savRows}</div>
+              <div class="history-exp-list">${expRows}${savRows}${incomeRows}</div>
               <div class="history-actions">
                 <button class="btn-restore-week" onclick="restoreWeek(${i})">↩ Restore this week</button>
                 <button class="btn-delete-week" onclick="deleteWeek(${i})">Delete</button>
@@ -1209,6 +1249,7 @@
 
       if (!state.history) state.history = [];
       if (!state.savings) state.savings = [];
+      if (!state.incomeLog) state.incomeLog = [];
       const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
       const totalSavings = state.savings.reduce((s, e) => s + e.amount, 0);
       const remaining = state.salary - totalSpent - totalSavings;
@@ -1219,11 +1260,13 @@
         salary: state.salary,
         expenses: [...state.expenses],
         savings: [...state.savings],
+        incomeLog: [...state.incomeLog],
       });
 
       state.salary = remaining > 0 ? remaining : 0;
       state.expenses = [];
       state.savings = [];
+      state.incomeLog = [];
       saveState();
       render();
       showToast('Week saved! Starting fresh.');
@@ -1272,6 +1315,7 @@
       const form = document.getElementById('salaryForm');
       const isOpen = form.classList.toggle('open');
       if (isOpen) {
+        document.getElementById('addMoneyForm').classList.remove('open');
         document.getElementById('salaryInput').value = state.salary || '';
         document.getElementById('salaryInput').focus();
       }
@@ -1284,7 +1328,29 @@
       saveState();
       render();
       document.getElementById('salaryForm').classList.remove('open');
-      showToast('Salary updated!');
+      showToast('Balance updated!');
+    }
+
+    function toggleAddMoneyForm() {
+      const form = document.getElementById('addMoneyForm');
+      const isOpen = form.classList.toggle('open');
+      if (isOpen) {
+        document.getElementById('salaryForm').classList.remove('open');
+        document.getElementById('addMoneyInput').value = '';
+        document.getElementById('addMoneyInput').focus();
+      }
+    }
+
+    function addMoney() {
+      const val = parseFloat(document.getElementById('addMoneyInput').value);
+      if (isNaN(val) || val <= 0) { showToast('Please enter a valid amount'); return; }
+      state.salary = (state.salary || 0) + val;
+      if (!state.incomeLog) state.incomeLog = [];
+      state.incomeLog.push({ id: Date.now().toString(), amount: val, date: new Date().toISOString() });
+      saveState();
+      render();
+      document.getElementById('addMoneyForm').classList.remove('open');
+      showToast('Balance updated! +' + fmt(val));
     }
 
     function addExpense() {
