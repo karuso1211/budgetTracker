@@ -66,18 +66,12 @@
     .balance-amount.negative { color: var(--red); }
     .balance-amount.zero { color: var(--muted); }
     .balance-row { display: flex; gap: 16px; margin-top: 16px; }
-    .balance-stat { flex: 1; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
-    .balance-stat .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-    .balance-stat .stat-value { font-size: 16px; font-weight: 700; }
+    .balance-stat { flex: 1; min-width: 0; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; overflow: hidden; }
+    .balance-stat .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .balance-stat .stat-value { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .stat-value.income { color: var(--green); }
     .stat-value.expense { color: var(--red); }
     .stat-value.savings { color: var(--green); }
-    .stat-value-row { display: flex; align-items: center; gap: 6px; }
-    .balance-pct { display: none; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 20px; letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0; }
-    .balance-pct.visible { display: inline-block; }
-    .balance-pct.high  { background: rgba(34,197,94,0.15);  color: var(--green); }
-    .balance-pct.mid   { background: rgba(251,191,36,0.15); color: var(--yellow); }
-    .balance-pct.low   { background: rgba(248,113,113,0.15); color: var(--red); }
 
     /* Mini cards row */
     .mini-cards-row { display: flex; gap: 12px; margin: 12px 16px 0; }
@@ -588,10 +582,7 @@
       <div class="balance-row">
         <div class="balance-stat">
           <div class="stat-label">Initial Balance</div>
-          <div class="stat-value-row">
-            <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
-            <div id="balancePct" class="balance-pct"></div>
-          </div>
+          <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
         </div>
         <div class="balance-stat">
           <div class="stat-label">Total Expenses</div>
@@ -851,16 +842,6 @@
       document.getElementById('expenseDisplay').textContent = fmt(totalExpenses);
       document.getElementById('savingsDisplay').textContent = fmt(totalSavings);
       document.getElementById('salaryDisplay').textContent = fmt(spendable);
-
-      const pctEl = document.getElementById('balancePct');
-      if (spendable > 0) {
-        const pct = Math.max(0, Math.round((balance / spendable) * 100));
-        const tier = pct > 60 ? 'high' : pct > 30 ? 'mid' : 'low';
-        pctEl.textContent = pct + '%';
-        pctEl.className = 'balance-pct visible ' + tier;
-      } else {
-        pctEl.className = 'balance-pct';
-      }
 
       // Render savings card
       const savingsCard = document.getElementById('savingsCard');
