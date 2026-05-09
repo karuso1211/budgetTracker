@@ -1,4 +1,4 @@
-const CACHE = 'budget-tracker-v9';
+const CACHE = 'budget-tracker-v10';
 const ASSETS = [
   '/budgetTracker/',
   '/budgetTracker/index.html',
@@ -20,8 +20,15 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Network-first: always try network, fall back to cache when offline
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
