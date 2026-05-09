@@ -351,6 +351,20 @@
     }
     .sidebar-btn .s-icon { font-size: 18px; flex-shrink: 0; }
 
+    /* Left-edge swipe hint */
+    .swipe-edge-hint {
+      position: fixed;
+      left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 4px; height: 48px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 0 4px 4px 0;
+      z-index: 89;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .sidebar.open ~ .swipe-edge-hint { opacity: 0; }
+
     /* Hamburger */
     .btn-menu {
       background: transparent;
@@ -378,6 +392,9 @@
   </style>
 </head>
 <body>
+
+  <!-- Left-edge swipe hint -->
+  <div class="swipe-edge-hint"></div>
 
   <!-- Sidebar overlay -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -849,12 +866,69 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Close sidebar on swipe left
+    // Swipe gestures for sidebar
     (function() {
-      let startX = 0;
-      document.getElementById('sidebar').addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-      document.getElementById('sidebar').addEventListener('touchend', e => {
-        if (startX - e.changedTouches[0].clientX > 60) closeSidebar();
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const SIDEBAR_W = 240;
+      const EDGE_ZONE = 24;  // px from left edge that triggers open gesture
+      const THRESHOLD = 60;  // min drag distance to commit open/close
+
+      let startX = 0, startY = 0, dragging = false, opening = false;
+
+      function setDragPos(dx) {
+        const open = sidebar.classList.contains('open');
+        let offset = open ? Math.min(0, dx) : Math.max(-SIDEBAR_W, -SIDEBAR_W + dx);
+        sidebar.style.transition = 'none';
+        sidebar.style.transform = `translateX(${offset}px)`;
+        const progress = (offset + SIDEBAR_W) / SIDEBAR_W;
+        overlay.style.transition = 'none';
+        overlay.style.opacity = progress * 0.5;
+        overlay.style.pointerEvents = progress > 0 ? 'all' : 'none';
+      }
+
+      function commitOrCancel(dx) {
+        sidebar.style.transition = '';
+        sidebar.style.transform = '';
+        overlay.style.transition = '';
+        overlay.style.opacity = '';
+        overlay.style.pointerEvents = '';
+
+        if (opening) {
+          if (dx > THRESHOLD) openSidebar(); else closeSidebar();
+        } else {
+          if (dx < -THRESHOLD) closeSidebar(); else openSidebar();
+        }
+        dragging = false;
+      }
+
+      document.addEventListener('touchstart', e => {
+        const x = e.touches[0].clientX;
+        const y = e.touches[0].clientY;
+        const sidebarOpen = sidebar.classList.contains('open');
+        // Open gesture: touch starts within left edge zone
+        // Close gesture: touch starts anywhere on open sidebar
+        if (!sidebarOpen && x <= EDGE_ZONE) {
+          startX = x; startY = y; dragging = true; opening = true;
+        } else if (sidebarOpen) {
+          startX = x; startY = y; dragging = true; opening = false;
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+        // Cancel if primarily vertical scroll
+        if (!opening && Math.abs(dy) > Math.abs(dx)) { dragging = false; return; }
+        if (opening && Math.abs(dy) > Math.abs(dx) + 10) { dragging = false; return; }
+        setDragPos(dx);
+      }, { passive: true });
+
+      document.addEventListener('touchend', e => {
+        if (!dragging) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        commitOrCancel(dx);
       }, { passive: true });
     })();
 
