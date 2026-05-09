@@ -73,6 +73,44 @@
     .stat-value.expense { color: var(--red); }
     .stat-value.savings { color: var(--green); }
 
+    /* Mini cards row */
+    .mini-cards-row { display: flex; gap: 12px; margin: 12px 16px 0; }
+    .mini-card {
+      flex: 0 0 calc(50% - 6px);
+      background: linear-gradient(135deg, #2a1a04 0%, #1e293b 100%);
+      border: 1px solid rgba(251,191,36,0.25);
+      border-radius: 14px;
+      padding: 14px;
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .water-ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      border: 2px solid rgba(147,210,255,0.55);
+      background: radial-gradient(circle, rgba(147,210,255,0.12) 0%, transparent 65%);
+      pointer-events: none;
+      animation: water-wave 0.9s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
+    }
+    @keyframes water-wave {
+      0%   { transform: scale(0); opacity: 1; }
+      55%  { opacity: 0.5; }
+      100% { transform: scale(1.1); opacity: 0; }
+    }
+    .mini-card-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .mini-card-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-card-due { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .mini-card-due.overdue { color: var(--red); font-weight: 600; }
+    .mini-card-due.soon { color: var(--yellow); font-weight: 600; }
+    .mini-card-amount { font-size: 20px; font-weight: 800; color: var(--yellow); letter-spacing: -0.5px; margin-top: 10px; }
+    .mini-card-empty { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .mini-card.expense { background: linear-gradient(135deg, #0d2a1a 0%, #1e293b 100%); border-color: rgba(34,197,94,0.25); }
+    .mini-card[onclick] { cursor: pointer; }
+    .mini-card[onclick]:active { opacity: 0.75; }
+    .mini-card-amount.red { color: var(--red); }
+
     /* Section */
     .section { margin: 16px 16px 0; }
     .section-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
@@ -163,6 +201,82 @@
     .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); }
     .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
     .empty-state p { font-size: 14px; }
+
+    /* Bills */
+    .bills-list { display: flex; flex-direction: column; gap: 8px; }
+    .bill-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; animation: slideIn 0.2s ease; }
+    .bill-row { padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; -webkit-user-select: none; user-select: none; }
+    .bill-row:active { background: var(--surface2); }
+    .bill-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(251,191,36,0.15); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .bill-info { flex: 1; min-width: 0; }
+    .bill-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bill-due { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .bill-due.overdue { color: var(--red); font-weight: 600; }
+    .bill-due.soon { color: var(--yellow); font-weight: 600; }
+    .bill-amount { font-size: 16px; font-weight: 700; color: var(--yellow); flex-shrink: 0; }
+    .bill-chevron { color: var(--muted); font-size: 11px; margin-left: 2px; transition: transform 0.2s; flex-shrink: 0; }
+    .bill-chevron.open { transform: rotate(180deg); }
+    .bill-expand { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .bill-expand.open { max-height: 240px; border-top: 1px solid var(--border); }
+    .bill-expand-inner { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .btn-bill-paid { background: var(--green); color: #0f172a; font-size: 14px; font-weight: 700; border: none; border-radius: 10px; padding: 11px; cursor: pointer; width: 100%; transition: opacity 0.15s; }
+    .btn-bill-paid:active { opacity: 0.8; }
+    .btn-bill-partial { background: var(--blue); color: #0f172a; font-size: 14px; font-weight: 700; border: none; border-radius: 10px; padding: 11px; cursor: pointer; width: 100%; transition: opacity 0.15s; }
+    .btn-bill-partial:active { opacity: 0.8; }
+    .partial-row { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
+    .partial-row.open { max-height: 80px; }
+    .partial-row-inner { display: flex; gap: 8px; padding-top: 8px; }
+    .btn-partial-ok { background: var(--green); color: #0f172a; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; padding: 12px 16px; cursor: pointer; flex-shrink: 0; transition: opacity 0.15s; }
+    .btn-partial-ok:active { opacity: 0.8; }
+
+    /* Bill payment history */
+    .bill-hist-list { display: flex; flex-direction: column; gap: 8px; }
+    .bill-hist-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+    .bill-hist-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .bill-hist-icon.paid { background: rgba(34,197,94,0.15); color: var(--green); font-size: 16px; font-weight: 700; }
+    .bill-hist-icon.partial { background: rgba(96,165,250,0.15); color: var(--blue); font-size: 14px; font-weight: 700; }
+    .bill-hist-info { flex: 1; min-width: 0; }
+    .bill-hist-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bill-hist-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .bill-hist-amount { font-size: 15px; font-weight: 700; flex-shrink: 0; }
+    .bill-hist-amount.paid { color: var(--green); }
+    .bill-hist-amount.partial { color: var(--blue); }
+
+    /* Bill type selection sheet */
+    .bill-type-backdrop {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: flex-end;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .bill-type-backdrop.show { opacity: 1; pointer-events: all; }
+    .bill-type-sheet {
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      border-top: 1px solid var(--border);
+      padding: 20px 20px calc(20px + var(--safe-bottom));
+      width: 100%;
+      display: flex; flex-direction: column; gap: 10px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1);
+    }
+    .bill-type-backdrop.show .bill-type-sheet { transform: translateY(0); }
+    .bill-type-title { font-size: 16px; font-weight: 700; text-align: center; }
+    .bill-type-sub { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 4px; }
+    .btn-bill-type {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      cursor: pointer; width: 100%; text-align: left;
+      transition: background 0.15s;
+    }
+    .btn-bill-type:active { background: var(--border); }
+    .btn-bill-type.monthly { border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.08); }
+    .btn-bill-type-label { font-size: 15px; font-weight: 600; color: var(--text); }
+    .btn-bill-type.monthly .btn-bill-type-label { color: var(--blue); }
+    .btn-bill-type-desc { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .btn-bill-type.monthly .btn-bill-type-desc { color: rgba(96,165,250,0.7); }
+    .bill-repeat-badge { font-size: 11px; color: var(--blue); font-weight: 600; margin-top: 2px; }
 
     /* History */
     .history-list { display: flex; flex-direction: column; gap: 10px; }
@@ -261,6 +375,11 @@
       transition: opacity 0.15s;
     }
     .modal-btn-cancel:active { opacity: 0.8; }
+    .brow { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .brow:last-child { border-bottom: none; font-size: 15px; font-weight: 700; padding-top: 10px; }
+    .brow-pos { color: var(--green); font-weight: 600; }
+    .brow-neg { color: var(--red); font-weight: 600; }
+    .brow-warn { font-size: 12px; color: var(--red); margin-top: 8px; text-align: center; }
 
     /* Toast */
     .toast { position: fixed; bottom: calc(var(--safe-bottom) + 90px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 18px; border-radius: 100px; opacity: 0; pointer-events: none; transition: all 0.25s ease; white-space: nowrap; z-index: 100; }
@@ -427,11 +546,17 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">Budget<span>Tracker</span></div>
     <nav class="sidebar-nav">
-      <button class="sidebar-btn active" id="navTracker" onclick="switchView('tracker')">
+      <button class="sidebar-btn active" id="navOverview" onclick="switchView('overview')">
+        <span class="s-icon">📊</span> Overview
+      </button>
+      <button class="sidebar-btn" id="navTracker" onclick="switchView('tracker')">
         <span class="s-icon">💰</span> Budget Tracker
       </button>
       <button class="sidebar-btn" id="navHistory" onclick="switchView('history')">
         <span class="s-icon">📅</span> History
+      </button>
+      <button class="sidebar-btn" id="navBills" onclick="switchView('bills')">
+        <span class="s-icon">🧾</span> Bills
       </button>
     </nav>
   </aside>
@@ -446,13 +571,13 @@
     </div>
   </div>
 
-  <!-- Budget Tracker View -->
-  <div class="view active" id="viewTracker">
+  <!-- Overview View -->
+  <div class="view active" id="viewOverview">
 
-    <!-- Balance Card -->
+    <!-- Summary Balance Card -->
     <div class="balance-card">
       <div class="balance-label">Remaining Balance</div>
-      <div class="balance-amount" id="balanceDisplay">&#8369;0.00</div>
+      <div class="balance-amount" id="overviewBalance">&#8369;0.00</div>
       <div class="balance-row">
         <div class="balance-stat">
           <div class="stat-label">Total Income</div>
@@ -477,6 +602,29 @@
       </div>
       <div class="savings-amount" id="savingsCardAmount">&#8369;0.00</div>
       <div class="savings-list-wrap" id="savingsList"></div>
+    </div>
+
+    <!-- Mini Cards Row -->
+    <div class="mini-cards-row">
+      <div class="mini-card" id="nextBillCard" onclick="switchView('bills')">
+        <div class="mini-card-label">Next Bill Due</div>
+        <div class="mini-card-empty">No bills added</div>
+      </div>
+      <div class="mini-card expense" id="latestExpenseCard" onclick="switchView('tracker')">
+        <div class="mini-card-label">Latest Expense</div>
+        <div class="mini-card-empty">No expenses yet</div>
+      </div>
+    </div>
+
+  </div><!-- /viewOverview -->
+
+  <!-- Budget Tracker View -->
+  <div class="view" id="viewTracker">
+
+    <!-- Balance Card -->
+    <div class="balance-card">
+      <div class="balance-label">Remaining Balance</div>
+      <div class="balance-amount" id="balanceDisplay">&#8369;0.00</div>
     </div>
 
     <!-- Salary Section -->
@@ -540,7 +688,37 @@
         <p>No history yet.<br>Save a week to see it here.</p>
       </div>
     </div>
+    <div class="section" style="margin-bottom: 16px;">
+      <div class="section-title">Bill Payments</div>
+      <div class="bill-hist-list" id="billHistList"></div>
+      <div id="billHistEmpty" class="empty-state" style="display:none;">
+        <div class="icon">🧾</div>
+        <p>No bill payments yet.</p>
+      </div>
+    </div>
   </div><!-- /viewHistory -->
+
+  <!-- Bills View -->
+  <div class="view" id="viewBills">
+
+    <!-- Add Bill -->
+    <div class="section">
+      <div class="section-title">Add Bill</div>
+      <div class="add-panel">
+        <input type="text" id="billName" placeholder="What's the bill for?" maxlength="50">
+        <input type="date" id="billDue">
+        <input type="text" id="billAmount" placeholder="How much?" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+        <button class="btn-primary" onclick="addBill()">+ Add Bill</button>
+      </div>
+    </div>
+
+    <!-- Bills List -->
+    <div class="section">
+      <div class="section-title">Upcoming Bills</div>
+      <div class="bills-list" id="billsList"></div>
+    </div>
+
+  </div><!-- /viewBills -->
 
   <!-- Modal -->
   <div class="modal-backdrop" id="modalBackdrop">
@@ -551,6 +729,23 @@
         <button class="modal-btn-cancel" id="modalCancel">Cancel</button>
         <button class="modal-btn-confirm" id="modalConfirm">Confirm</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Bill type selection sheet -->
+  <div class="bill-type-backdrop" id="billTypeBackdrop" onclick="closeBillTypeSheet()">
+    <div class="bill-type-sheet" onclick="event.stopPropagation()">
+      <div class="bill-type-title">One-time or Monthly?</div>
+      <div class="bill-type-sub">Choose how often this bill repeats</div>
+      <button type="button" class="btn-bill-type" onclick="confirmBillType('once')">
+        <div class="btn-bill-type-label">📌 One-time</div>
+        <div class="btn-bill-type-desc">Removed after payment</div>
+      </button>
+      <button type="button" class="btn-bill-type monthly" onclick="confirmBillType('monthly')">
+        <div class="btn-bill-type-label">🔄 Monthly</div>
+        <div class="btn-bill-type-desc">Auto-renews next month after payment</div>
+      </button>
+      <button type="button" class="btn-cancel" onclick="closeBillTypeSheet()">Cancel</button>
     </div>
   </div>
 
@@ -575,12 +770,14 @@
         const s = localStorage.getItem('budgetTracker');
         if (s) return JSON.parse(s);
       } catch {}
-      return { salary: 0, expenses: [], savings: [], history: [] };
+      return { salary: 0, expenses: [], savings: [], history: [], bills: [], billHistory: [] };
     }
 
     function saveState() {
       if (!state.history) state.history = [];
       if (!state.savings) state.savings = [];
+      if (!state.bills) state.bills = [];
+      if (!state.billHistory) state.billHistory = [];
       localStorage.setItem('budgetTracker', JSON.stringify(state));
     }
 
@@ -592,6 +789,20 @@
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    function getBalance() {
+      const totalExp = state.expenses.reduce((s, e) => s + e.amount, 0);
+      const totalSav = (state.savings || []).reduce((s, e) => s + e.amount, 0);
+      return +(state.salary - totalExp - totalSav).toFixed(2);
+    }
+
+    function billPayHtml(balance, payAmount) {
+      const after = +(balance - payAmount).toFixed(2);
+      const afterCls = after >= 0 ? 'brow-pos' : 'brow-neg';
+      return `<div class="brow"><span>Available balance</span><span>${fmt(balance)}</span></div>`
+           + `<div class="brow"><span>After payment</span><span class="${afterCls}">${fmt(after)}</span></div>`
+           + (after < 0 ? `<div class="brow-warn">Shortfall of ${fmt(Math.abs(after))}</div>` : '');
+    }
+
     function weekLabel(isoDate) {
       const d = new Date(isoDate);
       return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -600,14 +811,19 @@
     function render() {
       if (!state.history) state.history = [];
       if (!state.savings) state.savings = [];
+      if (!state.bills) state.bills = [];
+      if (!state.billHistory) state.billHistory = [];
 
       const totalExpenses = state.expenses.reduce((s, e) => s + e.amount, 0);
       const totalSavings = state.savings.reduce((s, e) => s + e.amount, 0);
       const balance = state.salary - totalExpenses - totalSavings;
 
       const balEl = document.getElementById('balanceDisplay');
+      const balCls = 'balance-amount ' + (balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'zero');
       balEl.textContent = fmt(balance);
-      balEl.className = 'balance-amount ' + (balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'zero');
+      balEl.className = balCls;
+      const ovBal = document.getElementById('overviewBalance');
+      if (ovBal) { ovBal.textContent = fmt(balance); ovBal.className = balCls; }
 
       document.getElementById('incomeDisplay').textContent = fmt(state.salary);
       document.getElementById('expenseDisplay').textContent = fmt(totalExpenses);
@@ -667,6 +883,251 @@
       }
 
       renderHistory();
+      renderBills();
+      renderBillHistory();
+      renderNextBill();
+      renderLatestExpense();
+    }
+
+    function renderBills() {
+      const list = document.getElementById('billsList');
+      if (!list) return;
+      if (state.bills.length === 0) {
+        list.innerHTML = `<div class="empty-state"><div class="icon">🧾</div><p>No bills yet.<br>Add your first bill above.</p></div>`;
+        return;
+      }
+      const today = new Date(); today.setHours(0,0,0,0);
+      list.innerHTML = state.bills.slice().sort((a, b) => new Date(a.due) - new Date(b.due)).map(bill => {
+        const due = new Date(bill.due + 'T00:00:00');
+        const diff = Math.round((due - today) / 86400000);
+        let dueLabel, dueCls;
+        if (diff < 0) { dueLabel = `Overdue by ${Math.abs(diff)} day${Math.abs(diff) !== 1 ? 's' : ''}`; dueCls = 'overdue'; }
+        else if (diff === 0) { dueLabel = 'Due today'; dueCls = 'soon'; }
+        else if (diff <= 7) { dueLabel = `Due in ${diff} day${diff !== 1 ? 's' : ''}`; dueCls = 'soon'; }
+        else { dueLabel = `Due ${due.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}`; dueCls = ''; }
+        return `
+          <div class="bill-card">
+            <div class="bill-row" onclick="toggleBillExpand('${bill.id}')">
+              <div class="bill-icon">🧾</div>
+              <div class="bill-info">
+                <div class="bill-name">${escHtml(bill.name)}</div>
+                <div class="bill-due ${dueCls}">${dueLabel}</div>
+                ${bill.repeat === 'monthly' ? '<div class="bill-repeat-badge">🔄 Monthly</div>' : ''}
+              </div>
+              <div class="bill-amount">${fmt(bill.amount)}</div>
+              <span class="bill-chevron" id="bchev-${bill.id}">▼</span>
+              <button class="btn-delete" onclick="deleteBill('${bill.id}'); event.stopPropagation();" aria-label="Delete">✕</button>
+            </div>
+            <div class="bill-expand" id="bexp-${bill.id}">
+              <div class="bill-expand-inner">
+                <button class="btn-bill-paid" onclick="markBillPaid('${bill.id}', event)">✓ Paid in Full</button>
+                <button class="btn-bill-partial" onclick="showPartialInput('${bill.id}', event)">⬤ Partially Paid</button>
+                <div class="partial-row" id="bpart-${bill.id}">
+                  <div class="partial-row-inner">
+                    <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="Amount paid">
+                    <button class="btn-partial-ok" onclick="confirmPartial('${bill.id}', event)">OK</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+      renderNextBill();
+    }
+
+    function renderLatestExpense() {
+      const card = document.getElementById('latestExpenseCard');
+      if (!card) return;
+      const expenses = state.expenses || [];
+      if (expenses.length === 0) {
+        card.innerHTML = `<div class="mini-card-label">Latest Expense</div><div class="mini-card-empty">No expenses yet</div>`;
+        return;
+      }
+      const latest = expenses[expenses.length - 1];
+      const cat = CATEGORY[latest.category] || CATEGORY.other;
+      const dateStr = new Date(latest.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+      card.innerHTML = `
+        <div class="mini-card-label">Latest Expense</div>
+        <div class="mini-card-name">${cat.icon} ${escHtml(latest.name)}</div>
+        <div class="mini-card-due">${dateStr}</div>
+        <div class="mini-card-amount red">${fmt(latest.amount)}</div>`;
+    }
+
+    function renderNextBill() {
+      const card = document.getElementById('nextBillCard');
+      if (!card) return;
+      const bills = state.bills || [];
+      if (bills.length === 0) {
+        card.innerHTML = `<div class="mini-card-label">Next Bill Due</div><div class="mini-card-empty">No bills added</div>`;
+        return;
+      }
+      const today = new Date(); today.setHours(0,0,0,0);
+      const next = bills.slice().sort((a, b) => new Date(a.due) - new Date(b.due))[0];
+      const due = new Date(next.due + 'T00:00:00');
+      const diff = Math.round((due - today) / 86400000);
+      let dueLabel, dueCls;
+      if (diff < 0) { dueLabel = `Overdue by ${Math.abs(diff)}d`; dueCls = 'overdue'; }
+      else if (diff === 0) { dueLabel = 'Due today'; dueCls = 'soon'; }
+      else if (diff <= 7) { dueLabel = `In ${diff} day${diff !== 1 ? 's' : ''}`; dueCls = 'soon'; }
+      else { dueLabel = due.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }); dueCls = ''; }
+      card.innerHTML = `
+        <div class="mini-card-label">Next Bill Due</div>
+        <div class="mini-card-name">${escHtml(next.name)}</div>
+        <div class="mini-card-due ${dueCls}">${dueLabel}</div>
+        <div class="mini-card-amount">${fmt(next.amount)}</div>`;
+    }
+
+    function toggleBillExpand(id) {
+      const exp = document.getElementById('bexp-' + id);
+      const chev = document.getElementById('bchev-' + id);
+      if (!exp) return;
+      const opening = !exp.classList.contains('open');
+      exp.classList.toggle('open', opening);
+      chev.classList.toggle('open', opening);
+    }
+
+    async function markBillPaid(id, e) {
+      e.stopPropagation();
+      const bill = state.bills.find(b => b.id === id);
+      if (!bill) return;
+
+      const balance = getBalance();
+      if (balance < bill.amount) {
+        await showModal('Insufficient Balance', billPayHtml(balance, bill.amount), 'Got it', 'red');
+        return;
+      }
+      const ok = await showModal(`Pay — ${escHtml(bill.name)}`, billPayHtml(balance, bill.amount), 'Pay Now', 'blue');
+      if (!ok) return;
+
+      state.billHistory.push({
+        id: Date.now().toString(),
+        name: bill.name,
+        due: bill.due,
+        totalAmount: bill.amount,
+        paid: bill.amount,
+        status: 'paid',
+        repeat: bill.repeat || 'once',
+        date: new Date().toISOString()
+      });
+      state.bills = state.bills.filter(b => b.id !== id);
+      if (bill.repeat === 'monthly') {
+        const next = new Date(bill.due + 'T00:00:00');
+        next.setMonth(next.getMonth() + 1);
+        const pad = n => String(n).padStart(2, '0');
+        const nextDue = `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`;
+        state.bills.push({ id: Date.now().toString() + 'r', name: bill.name, due: nextDue, amount: bill.amount, repeat: 'monthly' });
+      }
+      saveState();
+      renderBills();
+      renderBillHistory();
+      showToast(bill.repeat === 'monthly' ? 'Paid! Next month\'s bill added 🔄' : 'Bill marked as paid! ✓');
+    }
+
+    function showPartialInput(id, e) {
+      e.stopPropagation();
+      const row = document.getElementById('bpart-' + id);
+      if (!row) return;
+      row.classList.toggle('open');
+      if (row.classList.contains('open')) row.querySelector('input').focus();
+    }
+
+    async function confirmPartial(id, e) {
+      e.stopPropagation();
+      const bill = state.bills.find(b => b.id === id);
+      if (!bill) return;
+      const input = document.getElementById('bpart-' + id).querySelector('input');
+      const paid = parseFloat(input.value);
+      if (isNaN(paid) || paid <= 0) { showToast('Enter a valid amount'); input.focus(); return; }
+      if (paid >= bill.amount) { showToast('Use "Paid in Full" for the full amount'); return; }
+
+      const balance = getBalance();
+      if (balance < paid) {
+        await showModal('Insufficient Balance', billPayHtml(balance, paid), 'Got it', 'red');
+        return;
+      }
+      const ok = await showModal(`Partial Payment — ${escHtml(bill.name)}`, billPayHtml(balance, paid), 'Pay Now', 'blue');
+      if (!ok) return;
+
+      const remaining = +(bill.amount - paid).toFixed(2);
+      state.billHistory.push({
+        id: Date.now().toString(),
+        name: bill.name,
+        due: bill.due,
+        totalAmount: bill.amount,
+        paid,
+        status: 'partial',
+        remaining,
+        date: new Date().toISOString()
+      });
+      bill.amount = remaining;
+      saveState();
+      renderBills();
+      renderBillHistory();
+      showToast(`Partial payment recorded — ${fmt(remaining)} remaining`);
+    }
+
+    function renderBillHistory() {
+      const list = document.getElementById('billHistList');
+      const empty = document.getElementById('billHistEmpty');
+      if (!list) return;
+      const hist = state.billHistory || [];
+      if (hist.length === 0) {
+        list.innerHTML = '';
+        if (empty) empty.style.display = 'block';
+        return;
+      }
+      if (empty) empty.style.display = 'none';
+      list.innerHTML = hist.slice().reverse().map(h => {
+        const isPaid = h.status === 'paid';
+        const dateStr = new Date(h.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+        const meta = isPaid ? `Paid in full · ${dateStr}` : `Partial — ${fmt(h.remaining)} remaining · ${dateStr}`;
+        return `
+          <div class="bill-hist-card">
+            <div class="bill-hist-icon ${h.status}">${isPaid ? '✓' : '½'}</div>
+            <div class="bill-hist-info">
+              <div class="bill-hist-name">${escHtml(h.name)}</div>
+              <div class="bill-hist-meta">${meta}</div>
+            </div>
+            <div class="bill-hist-amount ${h.status}">${fmt(h.paid)}</div>
+          </div>`;
+      }).join('');
+    }
+
+    let _pendingBill = null;
+
+    function addBill() {
+      const name = document.getElementById('billName').value.trim();
+      const due = document.getElementById('billDue').value;
+      const amount = parseFloat(document.getElementById('billAmount').value);
+      if (!name) { showToast('Please enter what the bill is for'); document.getElementById('billName').focus(); return; }
+      if (!due) { showToast('Please select a due date'); document.getElementById('billDue').focus(); return; }
+      if (isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount'); document.getElementById('billAmount').focus(); return; }
+      _pendingBill = { name, due, amount };
+      document.getElementById('billTypeBackdrop').classList.add('show');
+    }
+
+    function closeBillTypeSheet() {
+      document.getElementById('billTypeBackdrop').classList.remove('show');
+      _pendingBill = null;
+    }
+
+    function confirmBillType(type) {
+      if (!_pendingBill) return;
+      state.bills.push({ id: Date.now().toString(), ..._pendingBill, repeat: type });
+      saveState();
+      renderBills();
+      document.getElementById('billName').value = '';
+      document.getElementById('billDue').value = '';
+      document.getElementById('billAmount').value = '';
+      closeBillTypeSheet();
+      showToast(type === 'monthly' ? 'Monthly bill added! 🔄' : 'Bill added!');
+    }
+
+    function deleteBill(id) {
+      state.bills = state.bills.filter(b => b.id !== id);
+      saveState();
+      renderBills();
+      showToast('Bill removed');
     }
 
     function renderHistory() {
@@ -901,7 +1362,7 @@
     function showModal(title, msg, confirmLabel = 'Confirm', confirmStyle = 'red') {
       return new Promise(resolve => {
         document.getElementById('modalTitle').textContent = title;
-        document.getElementById('modalMsg').textContent = msg;
+        document.getElementById('modalMsg').innerHTML = msg;
         const confirmBtn = document.getElementById('modalConfirm');
         confirmBtn.textContent = confirmLabel;
         confirmBtn.className = 'modal-btn-confirm' + (confirmStyle === 'blue' ? ' blue' : '');
@@ -924,6 +1385,23 @@
         backdrop.addEventListener('click', onBackdrop);
       });
     }
+
+    // Water ripple on clickable mini cards
+    document.addEventListener('pointerdown', e => {
+      const card = e.target.closest('.mini-card[onclick]');
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      const size = Math.max(card.offsetWidth, card.offsetHeight) * 2;
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      [0, 150, 300].forEach(delay => {
+        const r = document.createElement('span');
+        r.className = 'water-ripple';
+        r.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;animation-delay:${delay}ms;`;
+        card.appendChild(r);
+        r.addEventListener('animationend', () => r.remove());
+      });
+    });
 
     // Ripple on all buttons
     document.addEventListener('pointerdown', e => {
@@ -959,14 +1437,19 @@
       document.getElementById('sidebarOverlay').classList.remove('show');
     }
 
-    let activeView = 'tracker';
+    let activeView = 'overview';
     function switchView(view) {
       activeView = view;
+      document.getElementById('viewOverview').classList.toggle('active', view === 'overview');
       document.getElementById('viewTracker').classList.toggle('active', view === 'tracker');
       document.getElementById('viewHistory').classList.toggle('active', view === 'history');
+      document.getElementById('viewBills').classList.toggle('active', view === 'bills');
+      document.getElementById('navOverview').classList.toggle('active', view === 'overview');
       document.getElementById('navTracker').classList.toggle('active', view === 'tracker');
       document.getElementById('navHistory').classList.toggle('active', view === 'history');
-      document.getElementById('headerTitle').textContent = view === 'tracker' ? 'Budget Tracker' : 'History';
+      document.getElementById('navBills').classList.toggle('active', view === 'bills');
+      const titles = { overview: 'Overview', tracker: 'Budget Tracker', history: 'History', bills: 'Bills' };
+      document.getElementById('headerTitle').textContent = titles[view] || 'Budget Tracker';
       closeSidebar();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
