@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="A simple, offline-ready budget tracker. Track your salary and expenses right from your phone.">
+  <link rel="manifest" href="manifest.json">
+  <title>Budget Tracker — Take Control of Your Money</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #273549;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --purple: #a78bfa;
+      --radius: 16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(51,65,85,0.5);
+    }
+    .nav-logo { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+    .nav-logo span { color: var(--green); }
+    .nav-cta {
+      background: var(--green);
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .nav-cta:active { opacity: 0.8; }
+
+    /* HERO */
+    .hero {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: float 8s ease-in-out infinite;
+    }
+    .blob-1 { width: 400px; height: 400px; background: #3b82f6; top: -100px; left: -100px; animation-delay: 0s; }
+    .blob-2 { width: 350px; height: 350px; background: #8b5cf6; bottom: -80px; right: -80px; animation-delay: -3s; }
+    .blob-3 { width: 250px; height: 250px; background: #22c55e; top: 40%; left: 50%; animation-delay: -5s; }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(20px, -20px) scale(1.05); }
+      66%       { transform: translate(-15px, 15px) scale(0.97); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 8vw, 64px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+    .hero h1 .accent { color: var(--green); }
+    .hero p {
+      font-size: clamp(15px, 3vw, 18px);
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 36px;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      animation: fadeUp 0.6s ease 0.3s both;
+    }
+    .btn-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green);
+      color: #0f172a;
+      font-size: 17px;
+      font-weight: 800;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px rgba(34,197,94,0.35);
+    }
+    .btn-hero:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(34,197,94,0.5); }
+    .btn-hero:active { transform: scale(0.97); }
+    .hero-note { font-size: 12px; color: var(--muted); }
+
+    /* PHONE MOCKUP */
+    .mockup-wrap {
+      margin-top: 60px;
+      animation: fadeUp 0.6s ease 0.4s both;
+      position: relative;
+    }
+    .phone {
+      width: 240px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 32px;
+      padding: 16px 12px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      position: relative;
+    }
+    .phone-notch {
+      width: 70px; height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      margin: 0 auto 12px;
+    }
+    .phone-balance {
+      background: linear-gradient(135deg, #1e3a5f, #1e293b);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .phone-balance-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .phone-balance-amt { font-size: 22px; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
+    .phone-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    .phone-stat { flex: 1; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 7px 8px; }
+    .phone-stat-lbl { font-size: 8px; color: var(--muted); }
+    .phone-stat-val { font-size: 11px; font-weight: 700; }
+    .phone-stat-val.g { color: var(--green); }
+    .phone-stat-val.r { color: var(--red); }
+    .phone-expense {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .phone-exp-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .phone-exp-name { font-size: 10px; font-weight: 600; flex: 1; }
+    .phone-exp-amt { font-size: 10px; font-weight: 700; color: var(--red); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* FEATURES */
+    .features {
+      padding: 80px 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .section-label {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      text-align: center;
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 48px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: var(--blue); transform: translateY(-3px); }
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* HOW TO INSTALL */
+    .install {
+      padding: 80px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .install-inner { max-width: 600px; margin: 0 auto; }
+    .steps { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .step-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .step-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* CTA */
+    .cta {
+      padding: 100px 24px;
+      text-align: center;
+    }
+    .cta h2 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -0.5px; margin-bottom: 16px; }
+    .cta p { font-size: 15px; color: var(--muted); margin-bottom: 36px; }
+
+    /* FOOTER */
+    footer {
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Divider */
+    .divider { width: 60px; height: 3px; background: linear-gradient(90deg, var(--blue), var(--purple)); border-radius: 2px; margin: 0 auto 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-logo">Budget<span>Tracker</span></div>
+    <a href="app.html" class="nav-cta">Open App</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="hero-badge">✦ Free &amp; Works Offline</div>
+    <h1>Track your money,<br><span class="accent">own your week.</span></h1>
+    <p>A lightweight budget tracker built for your phone. Add your salary, log expenses, and always know what's left — even without internet.</p>
+    <div class="hero-actions">
+      <a href="app.html" class="btn-hero">
+        <span>🚀</span> Get Started — It's Free
+      </a>
+      <div class="hero-note">No sign-up. No ads. Your data stays on your device.</div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="mockup-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-balance">
+          <div class="phone-balance-lbl">Remaining Balance</div>
+          <div class="phone-balance-amt">₱2,969.59</div>
+        </div>
+        <div class="phone-row">
+          <div class="phone-stat">
+            <div class="phone-stat-lbl">Income</div>
+            <div class="phone-stat-val g">₱4,469.59</div>
+          </div>
+          <div class="phone-stat">
+            <div class="phone-stat-lbl">Spent</div>
+            <div class="phone-stat-val r">₱1,500.00</div>
+          </div>
+        </div>
+        <div class="phone-expense">
+          <div class="phone-exp-icon cat-food">🍔</div>
+          <div class="phone-exp-name">Lunch</div>
+          <div class="phone-exp-amt">₱250.00</div>
+        </div>
+        <div class="phone-expense">
+          <div class="phone-exp-icon cat-transport">🚗</div>
+          <div class="phone-exp-name">Grab ride</div>
+          <div class="phone-exp-amt">₱180.00</div>
+        </div>
+        <div class="phone-expense">
+          <div class="phone-exp-icon cat-bills">💡</div>
+          <div class="phone-exp-name">Electricity</div>
+          <div class="phone-exp-amt">₱1,070.00</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="section-label">Features</div>
+    <div class="divider"></div>
+    <h2 class="section-title">Everything you need,<br>nothing you don't.</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">💰</span>
+        <div class="feature-title">Salary Tracking</div>
+        <div class="feature-desc">Set your income and watch your remaining balance update in real time as you add expenses.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📋</span>
+        <div class="feature-title">Expense Categories</div>
+        <div class="feature-desc">Organize spending into Food, Transport, Bills, Shopping, Health, Entertainment, and more.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📅</span>
+        <div class="feature-title">Weekly History</div>
+        <div class="feature-desc">Save your current week before starting fresh. Review past weeks anytime and restore them if needed.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">↩️</span>
+        <div class="feature-title">Week Restore</div>
+        <div class="feature-desc">Made a mistake? Restore any past week's data as your active budget with one tap.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📶</span>
+        <div class="feature-title">Works Offline</div>
+        <div class="feature-desc">Once loaded, the app works with zero internet. Your data lives on your device — private by design.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📱</span>
+        <div class="feature-title">Install on iPhone</div>
+        <div class="feature-desc">Add to your Home Screen via Safari for a full-screen, native-feeling experience — no App Store needed.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install Guide -->
+  <section class="install">
+    <div class="install-inner">
+      <div class="section-label">iPhone Setup</div>
+      <div class="divider"></div>
+      <h2 class="section-title">Install it like a native app</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Open in Safari</div>
+            <div class="step-desc">Make sure you're using Safari on your iPhone — it's the only browser that supports PWA installation on iOS.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Tap the Share button</div>
+            <div class="step-desc">Tap the Share icon at the bottom of the screen (the box with an arrow pointing up).</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Add to Home Screen</div>
+            <div class="step-desc">Scroll down in the share sheet and tap "Add to Home Screen", then tap "Add" in the top right corner.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">Launch &amp; use offline</div>
+            <div class="step-desc">Open it from your Home Screen like any app. It runs full-screen and works without internet after the first load.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2>Ready to take control?</h2>
+    <p>Free forever. No account needed. Just open and start tracking.</p>
+    <a href="app.html" class="btn-hero">
+      <span>✦</span> Open Budget Tracker
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div>Built for personal use. Your data never leaves your device.</div>
+  </footer>
+
+  <style>
+    .cat-food { background: rgba(251,191,36,0.15); }
+    .cat-transport { background: rgba(96,165,250,0.15); }
+    .cat-bills { background: rgba(248,113,113,0.15); }
+  </style>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

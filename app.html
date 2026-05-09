@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Budget Tracker">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="manifest.json">
+  <title>Budget Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #273549;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --yellow: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 16px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(var(--safe-bottom) + 80px);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .header .subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Balance Card */
+    .balance-card {
+      margin: 16px 16px 0;
+      background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .balance-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .balance-amount { font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1; transition: color 0.3s; }
+    .balance-amount.positive { color: var(--green); }
+    .balance-amount.negative { color: var(--red); }
+    .balance-amount.zero { color: var(--muted); }
+    .balance-row { display: flex; gap: 16px; margin-top: 16px; }
+    .balance-stat { flex: 1; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
+    .balance-stat .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .balance-stat .stat-value { font-size: 16px; font-weight: 700; }
+    .stat-value.income { color: var(--green); }
+    .stat-value.expense { color: var(--red); }
+
+    /* Section */
+    .section { margin: 16px 16px 0; }
+    .section-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+
+    /* Salary Panel */
+    .salary-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+    .salary-display { display: flex; align-items: center; justify-content: space-between; }
+    .salary-display .current { font-size: 22px; font-weight: 700; color: var(--green); }
+    .salary-display .current-label { font-size: 12px; color: var(--muted); }
+    .btn-edit { background: var(--surface2); border: 1px solid var(--border); color: var(--blue); font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+    .btn-edit:active { opacity: 0.7; }
+    .salary-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 0;
+      overflow: hidden;
+      margin-top: 0;
+      transition: max-height 0.35s ease, margin-top 0.3s ease;
+    }
+    .salary-form.open {
+      max-height: 160px;
+      margin-top: 12px;
+    }
+
+    /* Add Expense Panel */
+    .add-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* Inputs */
+    input, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input:focus, select:focus { border-color: var(--blue); }
+    input::placeholder { color: var(--muted); }
+
+    .input-row { display: flex; gap: 8px; }
+    .input-row > * { flex: 1; }
+
+    /* Buttons */
+    .btn-primary { background: var(--blue); color: #0f172a; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; padding: 13px; cursor: pointer; width: 100%; transition: opacity 0.15s; }
+    .btn-primary:active { opacity: 0.8; }
+    .btn-save { background: var(--green); color: #0f172a; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; padding: 13px; cursor: pointer; flex: 1; transition: opacity 0.15s; }
+    .btn-save:active { opacity: 0.8; }
+    .btn-cancel { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 15px; font-weight: 600; border-radius: 10px; padding: 13px; cursor: pointer; transition: opacity 0.15s; }
+    .btn-cancel:active { opacity: 0.8; }
+
+    /* Save Week Button */
+    .btn-save-week {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 4px;
+      transition: opacity 0.15s;
+    }
+    .btn-save-week:active { opacity: 0.8; }
+
+    .btn-reset { background: transparent; border: 1px solid var(--border); color: var(--red); font-size: 13px; font-weight: 600; padding: 10px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 8px; }
+    .btn-reset:active { opacity: 0.7; }
+
+    /* Expense List */
+    .expenses-list { display: flex; flex-direction: column; gap: 8px; }
+    .expense-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; animation: slideIn 0.2s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .expense-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .expense-info { flex: 1; min-width: 0; }
+    .expense-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .expense-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .expense-amount { font-size: 16px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+    .btn-delete { background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; }
+    .btn-delete:active { color: var(--red); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); }
+    .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; }
+
+    /* History */
+    .history-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .history-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .history-header:active { background: var(--surface2); }
+    .history-week-label { font-size: 14px; font-weight: 700; }
+    .history-week-dates { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .history-summary { display: flex; gap: 12px; align-items: center; }
+    .history-balance { font-size: 15px; font-weight: 700; }
+    .history-balance.pos { color: var(--green); }
+    .history-balance.neg { color: var(--red); }
+    .history-chevron { color: var(--muted); font-size: 12px; margin-left: 6px; transition: transform 0.2s; }
+    .history-chevron.open { transform: rotate(180deg); }
+
+    .history-body { display: none; border-top: 1px solid var(--border); padding: 12px 16px; }
+    .history-body.open { display: block; }
+
+    .history-stat-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+    .history-stat-row .lbl { color: var(--muted); }
+    .history-stat-row .val { font-weight: 600; }
+    .history-stat-row .val.g { color: var(--green); }
+    .history-stat-row .val.r { color: var(--red); }
+
+    .history-exp-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .history-exp-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .history-exp-item .name { color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; }
+    .history-exp-item .amt { color: var(--red); font-weight: 600; flex-shrink: 0; }
+
+    .history-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn-restore-week {
+      flex: 1;
+      background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-restore-week:active { opacity: 0.8; }
+    .btn-delete-week { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; padding: 10px; border-radius: 8px; text-align: center; }
+    .btn-delete-week:active { color: var(--red); border-color: var(--red); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 20px 20px;
+      width: 100%;
+      max-width: 340px;
+      transform: scale(0.92) translateY(12px);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-backdrop.show .modal { transform: scale(1) translateY(0); }
+    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .modal-msg { font-size: 14px; color: var(--muted); line-height: 1.5; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-btn-confirm {
+      flex: 1; padding: 13px; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      background: var(--red); color: #fff;
+      transition: opacity 0.15s;
+    }
+    .modal-btn-confirm.blue { background: linear-gradient(135deg, #1d4ed8, #60a5fa); }
+    .modal-btn-confirm:active { opacity: 0.8; }
+    .modal-btn-cancel {
+      flex: 1; padding: 13px; border: 1px solid var(--border); border-radius: 10px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      background: var(--surface2); color: var(--muted);
+      transition: opacity 0.15s;
+    }
+    .modal-btn-cancel:active { opacity: 0.8; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: calc(var(--safe-bottom) + 90px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 18px; border-radius: 100px; opacity: 0; pointer-events: none; transition: all 0.25s ease; white-space: nowrap; z-index: 100; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Ripple */
+    button { position: relative; overflow: hidden; }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-burst 0.55s ease-out forwards;
+      background: rgba(255, 255, 255, 0.3);
+      pointer-events: none;
+    }
+    @keyframes ripple-burst {
+      0%   { transform: scale(0); opacity: 0.7; }
+      60%  { transform: scale(1); opacity: 0.3; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    /* Category colors */
+    .cat-food { background: rgba(251,191,36,0.15); }
+    .cat-transport { background: rgba(96,165,250,0.15); }
+    .cat-shopping { background: rgba(167,139,250,0.15); }
+    .cat-bills { background: rgba(248,113,113,0.15); }
+    .cat-health { background: rgba(34,197,94,0.15); }
+    .cat-entertainment { background: rgba(251,146,60,0.15); }
+    .cat-other { background: rgba(148,163,184,0.15); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Budget Tracker</h1>
+    <div class="subtitle" id="headerDate"></div>
+  </div>
+
+  <!-- Balance Card -->
+  <div class="balance-card">
+    <div class="balance-label">Remaining Balance</div>
+    <div class="balance-amount" id="balanceDisplay">&#8369;0.00</div>
+    <div class="balance-row">
+      <div class="balance-stat">
+        <div class="stat-label">Total Income</div>
+        <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
+      </div>
+      <div class="balance-stat">
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-value expense" id="expenseDisplay">&#8369;0.00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salary Section -->
+  <div class="section">
+    <div class="section-title">Income / Salary</div>
+    <div class="salary-panel">
+      <div class="salary-display">
+        <div>
+          <div class="current-label">Current Salary</div>
+          <div class="current" id="salaryDisplay">&#8369;0.00</div>
+        </div>
+        <button class="btn-edit" onclick="toggleSalaryForm()">Edit</button>
+      </div>
+      <div class="salary-form" id="salaryForm">
+        <input type="text" id="salaryInput" placeholder="Enter salary amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+        <div class="input-row">
+          <button class="btn-save" onclick="saveSalary()">Save</button>
+          <button class="btn-cancel" onclick="toggleSalaryForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Expense Section -->
+  <div class="section">
+    <div class="section-title">Add Expense</div>
+    <div class="add-panel">
+      <input type="text" id="expenseName" placeholder="Expense description" maxlength="50">
+      <input type="text" id="expenseAmount" placeholder="Amount" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+      <select id="expenseCategory">
+        <option value="food">🍔 Food</option>
+        <option value="transport">🚗 Transport</option>
+        <option value="shopping">🛍 Shopping</option>
+        <option value="bills">💡 Bills</option>
+        <option value="health">💊 Health</option>
+        <option value="entertainment">🎮 Entertainment</option>
+        <option value="other">📦 Other</option>
+      </select>
+      <button class="btn-primary" onclick="addExpense()">+ Add Expense</button>
+    </div>
+  </div>
+
+  <!-- Expenses List -->
+  <div class="section">
+    <div class="section-title">Expenses</div>
+    <div class="expenses-list" id="expensesList"></div>
+    <button class="btn-save-week" id="saveWeekBtn" onclick="saveWeek()" style="display:none;">💾 Save Week &amp; Start Fresh</button>
+    <button class="btn-reset" id="resetBtn" onclick="confirmReset()" style="display:none;">Reset Without Saving</button>
+  </div>
+
+  <!-- Weekly History -->
+  <div class="section" id="historySection" style="margin-bottom: 16px; display:none;">
+    <div class="section-title">Past Weeks</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-msg" id="modalMsg"></div>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" id="modalCancel">Cancel</button>
+        <button class="modal-btn-confirm" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const CATEGORY = {
+      food:          { icon: '🍔', cls: 'cat-food' },
+      transport:     { icon: '🚗', cls: 'cat-transport' },
+      shopping:      { icon: '🛍', cls: 'cat-shopping' },
+      bills:         { icon: '💡', cls: 'cat-bills' },
+      health:        { icon: '💊', cls: 'cat-health' },
+      entertainment: { icon: '🎮', cls: 'cat-entertainment' },
+      other:         { icon: '📦', cls: 'cat-other' },
+    };
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const s = localStorage.getItem('budgetTracker');
+        if (s) return JSON.parse(s);
+      } catch {}
+      return { salary: 0, expenses: [], history: [] };
+    }
+
+    function saveState() {
+      if (!state.history) state.history = [];
+      localStorage.setItem('budgetTracker', JSON.stringify(state));
+    }
+
+    function fmt(n) {
+      return '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function weekLabel(isoDate) {
+      const d = new Date(isoDate);
+      return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function render() {
+      if (!state.history) state.history = [];
+      const totalExpenses = state.expenses.reduce((s, e) => s + e.amount, 0);
+      const balance = state.salary - totalExpenses;
+
+      const balEl = document.getElementById('balanceDisplay');
+      balEl.textContent = fmt(balance);
+      balEl.className = 'balance-amount ' + (balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'zero');
+
+      document.getElementById('incomeDisplay').textContent = fmt(state.salary);
+      document.getElementById('expenseDisplay').textContent = fmt(totalExpenses);
+      document.getElementById('salaryDisplay').textContent = fmt(state.salary);
+
+      const hasExpenses = state.expenses.length > 0;
+      const list = document.getElementById('expensesList');
+
+      if (!hasExpenses) {
+        list.innerHTML = `<div class="empty-state"><div class="icon">💸</div><p>No expenses yet.<br>Add your first expense above.</p></div>`;
+        document.getElementById('saveWeekBtn').style.display = 'none';
+        document.getElementById('resetBtn').style.display = 'none';
+      } else {
+        list.innerHTML = state.expenses.slice().reverse().map(exp => {
+          const cat = CATEGORY[exp.category] || CATEGORY.other;
+          const date = new Date(exp.date);
+          const dateStr = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+          return `
+            <div class="expense-item">
+              <div class="expense-icon ${cat.cls}">${cat.icon}</div>
+              <div class="expense-info">
+                <div class="expense-name">${escHtml(exp.name)}</div>
+                <div class="expense-meta">${dateStr}</div>
+              </div>
+              <div class="expense-amount">${fmt(exp.amount)}</div>
+              <button class="btn-delete" onclick="deleteExpense('${exp.id}')" aria-label="Delete">✕</button>
+            </div>`;
+        }).join('');
+        document.getElementById('saveWeekBtn').style.display = 'block';
+        document.getElementById('resetBtn').style.display = 'block';
+      }
+
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = state.history || [];
+      const section = document.getElementById('historySection');
+      const listEl = document.getElementById('historyList');
+
+      if (history.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+
+      section.style.display = 'block';
+      listEl.innerHTML = history.slice().reverse().map((week, ri) => {
+        const i = history.length - 1 - ri;
+        const totalSpent = week.expenses.reduce((s, e) => s + e.amount, 0);
+        const balance = week.salary - totalSpent;
+        const balCls = balance >= 0 ? 'pos' : 'neg';
+
+        const expRows = week.expenses.length === 0
+          ? '<div style="color:var(--muted);font-size:13px;">No expenses recorded.</div>'
+          : week.expenses.map(e => `
+              <div class="history-exp-item">
+                <span class="name">${escHtml(e.name)}</span>
+                <span class="amt">${fmt(e.amount)}</span>
+              </div>`).join('');
+
+        return `
+          <div class="history-card">
+            <div class="history-header" onclick="toggleHistory(${i})">
+              <div>
+                <div class="history-week-label">${escHtml(week.label)}</div>
+                <div class="history-week-dates">Saved ${weekLabel(week.savedAt)}</div>
+              </div>
+              <div class="history-summary">
+                <div class="history-balance ${balCls}">${fmt(balance)}</div>
+                <div class="history-chevron" id="chev-${i}">▼</div>
+              </div>
+            </div>
+            <div class="history-body" id="hbody-${i}">
+              <div class="history-stat-row"><span class="lbl">Salary</span><span class="val g">${fmt(week.salary)}</span></div>
+              <div class="history-stat-row"><span class="lbl">Total Spent</span><span class="val r">${fmt(totalSpent)}</span></div>
+              <div class="history-stat-row"><span class="lbl">Remaining</span><span class="val ${balCls}">${fmt(balance)}</span></div>
+              <div class="history-exp-list">${expRows}</div>
+              <div class="history-actions">
+                <button class="btn-restore-week" onclick="restoreWeek(${i})">↩ Restore this week</button>
+                <button class="btn-delete-week" onclick="deleteWeek(${i})">Delete</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function toggleHistory(i) {
+      const body = document.getElementById('hbody-' + i);
+      const chev = document.getElementById('chev-' + i);
+      body.classList.toggle('open');
+      chev.classList.toggle('open');
+    }
+
+    function saveWeek() {
+      if (state.expenses.length === 0) { showToast('No expenses to save'); return; }
+
+      const now = new Date();
+      const label = 'Week of ' + now.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      if (!state.history) state.history = [];
+      const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
+      const remaining = state.salary - totalSpent;
+
+      state.history.push({
+        label,
+        savedAt: now.toISOString(),
+        salary: state.salary,
+        expenses: [...state.expenses],
+      });
+
+      state.salary = remaining > 0 ? remaining : 0;
+      state.expenses = [];
+      saveState();
+      render();
+      showToast('Week saved! Starting fresh.');
+    }
+
+    async function restoreWeek(i) {
+      const week = state.history[i];
+      const hasCurrent = state.expenses.length > 0 || state.salary > 0;
+      const msg = hasCurrent
+        ? 'Your current data will be auto-saved to history first.'
+        : 'This will load this week\'s salary and expenses as your active data.';
+      const ok = await showModal('Restore this week?', msg, 'Restore', 'blue');
+      if (!ok) return;
+
+      if (hasCurrent) {
+        const now = new Date();
+        state.history.push({
+          label: 'Week of ' + now.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' }) + ' (auto-saved)',
+          savedAt: now.toISOString(),
+          salary: state.salary,
+          expenses: [...state.expenses],
+        });
+      }
+
+      state.salary = week.salary;
+      state.expenses = week.expenses.map(e => ({ ...e, id: Date.now().toString() + Math.random() }));
+      state.history.splice(hasCurrent ? i : i, 1);
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Week restored!');
+    }
+
+    async function deleteWeek(i) {
+      const ok = await showModal('Delete this record?', 'This cannot be undone.', 'Delete');
+      if (!ok) return;
+      state.history.splice(i, 1);
+      saveState();
+      renderHistory();
+      showToast('Record deleted');
+    }
+
+    function toggleSalaryForm() {
+      const form = document.getElementById('salaryForm');
+      const isOpen = form.classList.toggle('open');
+      if (isOpen) {
+        document.getElementById('salaryInput').value = state.salary || '';
+        document.getElementById('salaryInput').focus();
+      }
+    }
+
+    function saveSalary() {
+      const val = parseFloat(document.getElementById('salaryInput').value);
+      if (isNaN(val) || val < 0) { showToast('Please enter a valid amount'); return; }
+      state.salary = val;
+      saveState();
+      render();
+      document.getElementById('salaryForm').classList.remove('open');
+      showToast('Salary updated!');
+    }
+
+    function addExpense() {
+      const name = document.getElementById('expenseName').value.trim();
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      const category = document.getElementById('expenseCategory').value;
+
+      if (!name) { showToast('Please enter a description'); document.getElementById('expenseName').focus(); return; }
+      if (isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount'); document.getElementById('expenseAmount').focus(); return; }
+
+      state.expenses.push({ id: Date.now().toString(), name, amount, category, date: new Date().toISOString() });
+      saveState();
+      render();
+
+      document.getElementById('expenseName').value = '';
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseCategory').value = 'food';
+      showToast('Expense added!');
+    }
+
+    function deleteExpense(id) {
+      state.expenses = state.expenses.filter(e => e.id !== id);
+      saveState();
+      render();
+      showToast('Expense removed');
+    }
+
+    async function confirmReset() {
+      const ok = await showModal('Reset without saving?', 'All current expenses will be permanently lost.', 'Reset');
+      if (ok) {
+        state.salary = 0;
+        state.expenses = [];
+        saveState();
+        render();
+        showToast('Slate cleared');
+      }
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function updateDate() {
+      const d = new Date();
+      document.getElementById('headerDate').textContent = d.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    document.getElementById('salaryInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveSalary(); });
+    document.getElementById('expenseName').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('expenseAmount').focus(); });
+    document.getElementById('expenseAmount').addEventListener('keydown', e => { if (e.key === 'Enter') addExpense(); });
+
+    // Custom modal
+    function showModal(title, msg, confirmLabel = 'Confirm', confirmStyle = 'red') {
+      return new Promise(resolve => {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalMsg').textContent = msg;
+        const confirmBtn = document.getElementById('modalConfirm');
+        confirmBtn.textContent = confirmLabel;
+        confirmBtn.className = 'modal-btn-confirm' + (confirmStyle === 'blue' ? ' blue' : '');
+        const backdrop = document.getElementById('modalBackdrop');
+        backdrop.classList.add('show');
+
+        function finish(result) {
+          backdrop.classList.remove('show');
+          confirmBtn.removeEventListener('click', onConfirm);
+          document.getElementById('modalCancel').removeEventListener('click', onCancel);
+          backdrop.removeEventListener('click', onBackdrop);
+          resolve(result);
+        }
+        const onConfirm = () => finish(true);
+        const onCancel = () => finish(false);
+        const onBackdrop = e => { if (e.target === backdrop) finish(false); };
+
+        confirmBtn.addEventListener('click', onConfirm);
+        document.getElementById('modalCancel').addEventListener('click', onCancel);
+        backdrop.addEventListener('click', onBackdrop);
+      });
+    }
+
+    // Ripple on all buttons
+    document.addEventListener('pointerdown', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const r = document.createElement('span');
+      const size = Math.max(btn.offsetWidth, btn.offsetHeight) * 2;
+      const rect = btn.getBoundingClientRect();
+      r.className = 'ripple';
+      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+      btn.appendChild(r);
+      r.addEventListener('animationend', () => r.remove());
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    updateDate();
+    render();
+  </script>
+</body>
+</html>
