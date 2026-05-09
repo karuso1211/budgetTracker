@@ -351,16 +351,6 @@
     }
     .sidebar-btn .s-icon { font-size: 18px; flex-shrink: 0; }
 
-    /* Left-edge swipe zone (invisible touch target) */
-    #swipeZone {
-      position: fixed;
-      left: 0; top: 0; bottom: 0;
-      width: 20px;
-      z-index: 89;
-      touch-action: none; /* override pan-y so touchmove fires for horizontal swipes */
-      display: block;
-    }
-
     /* Left-edge swipe hint */
     .swipe-edge-hint {
       position: fixed;
@@ -402,8 +392,7 @@
 </head>
 <body>
 
-  <!-- Left-edge swipe zone + hint -->
-  <div id="swipeZone"></div>
+  <!-- Left-edge swipe hint -->
   <div class="swipe-edge-hint"></div>
 
   <!-- Sidebar overlay -->
@@ -879,79 +868,34 @@
     // Swipe gestures for sidebar
     (function() {
       const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      const swipeZone = document.getElementById('swipeZone');
-      const SIDEBAR_W = 240;
       const THRESHOLD = 60;
+      let startX = 0, startY = 0;
 
-      let startX = 0, startY = 0, active = false, isOpen = false;
-
-      function setSidebarOffset(offset) {
-        sidebar.style.transition = 'none';
-        sidebar.style.transform = `translateX(${offset}px)`;
-        const progress = (offset + SIDEBAR_W) / SIDEBAR_W;
-        overlay.style.transition = 'none';
-        overlay.style.opacity = progress * 0.5;
-        overlay.style.pointerEvents = progress > 0.05 ? 'all' : 'none';
-      }
-
-      function commit(dx) {
-        sidebar.style.transition = '';
-        sidebar.style.transform = '';
-        overlay.style.transition = '';
-        overlay.style.opacity = '';
-        overlay.style.pointerEvents = '';
-        active = false;
-
-        if (isOpen) {
-          if (dx < -THRESHOLD) closeSidebar(); else openSidebar();
-        } else {
-          if (dx > THRESHOLD) openSidebar(); else closeSidebar();
-        }
-      }
-
-      // Open: dedicated swipe zone has touch-action:none so touchmove always fires
-      swipeZone.addEventListener('touchstart', e => {
-        if (sidebar.classList.contains('open')) return;
+      // Open: swipe right anywhere on the page (touchstart+touchend only, unaffected by touch-action:pan-y)
+      document.addEventListener('touchstart', e => {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
-        active = true;
-        isOpen = false;
       }, { passive: true });
 
-      swipeZone.addEventListener('touchmove', e => {
-        if (!active) return;
-        const dx = e.touches[0].clientX - startX;
-        const dy = e.touches[0].clientY - startY;
-        if (Math.abs(dy) > Math.abs(dx) + 10) { active = false; closeSidebar(); return; }
-        setSidebarOffset(Math.max(-SIDEBAR_W, -SIDEBAR_W + dx));
-      }, { passive: true });
-
-      swipeZone.addEventListener('touchend', e => {
-        if (!active) return;
-        commit(e.changedTouches[0].clientX - startX);
+      document.addEventListener('touchend', e => {
+        if (sidebar.classList.contains('open')) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        if (dx > THRESHOLD && Math.abs(dy) < Math.abs(dx)) openSidebar();
       }, { passive: true });
 
       // Close: swipe left on the open sidebar
+      let sbStartX = 0, sbStartY = 0;
       sidebar.addEventListener('touchstart', e => {
-        if (!sidebar.classList.contains('open')) return;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        active = true;
-        isOpen = true;
-      }, { passive: true });
-
-      sidebar.addEventListener('touchmove', e => {
-        if (!active || !isOpen) return;
-        const dx = e.touches[0].clientX - startX;
-        const dy = e.touches[0].clientY - startY;
-        if (Math.abs(dy) > Math.abs(dx)) { active = false; openSidebar(); return; }
-        setSidebarOffset(Math.min(0, dx));
+        sbStartX = e.touches[0].clientX;
+        sbStartY = e.touches[0].clientY;
       }, { passive: true });
 
       sidebar.addEventListener('touchend', e => {
-        if (!active || !isOpen) return;
-        commit(e.changedTouches[0].clientX - startX);
+        if (!sidebar.classList.contains('open')) return;
+        const dx = e.changedTouches[0].clientX - sbStartX;
+        const dy = e.changedTouches[0].clientY - sbStartY;
+        if (dx < -THRESHOLD && Math.abs(dy) < Math.abs(dx)) closeSidebar();
       }, { passive: true });
     })();
 
