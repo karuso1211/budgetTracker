@@ -248,6 +248,111 @@
     .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
     .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
+    /* TUTORIAL */
+    .tutorial { padding: 80px 24px; max-width: 600px; margin: 0 auto; }
+    .tut-carousel { margin-top: 48px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+    .tut-phone-wrap { position: relative; width: 240px; overflow: hidden; border-radius: 32px; }
+    .tut-phone {
+      width: 240px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 32px;
+      padding: 16px 12px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      min-height: 300px;
+      position: relative;
+      will-change: transform;
+    }
+    .tut-phone.slide-out-left  { animation: slideOutLeft  0.32s cubic-bezier(0.4,0,0.2,1) forwards; }
+    .tut-phone.slide-out-right { animation: slideOutRight 0.32s cubic-bezier(0.4,0,0.2,1) forwards; }
+    .tut-phone.slide-in-left   { animation: slideInLeft   0.32s cubic-bezier(0.4,0,0.2,1) forwards; }
+    .tut-phone.slide-in-right  { animation: slideInRight  0.32s cubic-bezier(0.4,0,0.2,1) forwards; }
+    @keyframes slideOutLeft  { from { transform: translateX(0); } to { transform: translateX(-110%); } }
+    @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(110%); } }
+    @keyframes slideInLeft   { from { transform: translateX(110%); } to { transform: translateX(0); } }
+    @keyframes slideInRight  { from { transform: translateX(-110%); } to { transform: translateX(0); } }
+    .tut-notch { width: 70px; height: 6px; background: var(--border); border-radius: 3px; margin: 0 auto 12px; }
+
+    /* Mockup UI pieces */
+    .tp-header { font-size: 10px; font-weight: 800; color: var(--text); text-align: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px; letter-spacing: -0.3px; }
+    .tp-balance { background: linear-gradient(135deg, #1e3a5f, #1e293b); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+    .tp-bal-lbl { font-size: 7px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .tp-bal-amt { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .tp-bal-amt.g { color: var(--green); }
+    .tp-bal-amt.m { color: var(--muted); }
+    .tp-row { display: flex; gap: 5px; margin-bottom: 8px; }
+    .tp-stat { flex: 1; background: rgba(255,255,255,0.05); border-radius: 7px; padding: 6px 7px; }
+    .tp-stat-lbl { font-size: 7px; color: var(--muted); }
+    .tp-stat-val { font-size: 10px; font-weight: 700; }
+    .tp-stat-val.g { color: var(--green); }
+    .tp-stat-val.r { color: var(--red); }
+    .tp-btn { background: var(--green); color: #0f172a; font-size: 10px; font-weight: 800; border-radius: 8px; padding: 9px; text-align: center; margin-bottom: 6px; }
+    .tp-btn.blue { background: var(--blue); }
+    .tp-form-field { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 7px 9px; font-size: 9px; color: var(--text); margin-bottom: 5px; }
+    .tp-form-row { display: flex; gap: 5px; margin-bottom: 5px; }
+    .tp-form-row .tp-form-field { flex: 1; margin-bottom: 0; }
+    .tp-label { font-size: 8px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .tp-item { background: var(--surface2); border-radius: 8px; padding: 7px 9px; display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+    .tp-item-icon { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+    .tp-item-name { font-size: 9px; font-weight: 600; flex: 1; }
+    .tp-item-amt { font-size: 9px; font-weight: 700; }
+    .tp-item-amt.r { color: var(--red); }
+    .tp-item-amt.g { color: var(--green); }
+    .tp-item-amt.y { color: #fbbf24; }
+    .tp-savings { background: linear-gradient(135deg, #14532d, #1e293b); border: 1px solid rgba(34,197,94,0.3); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+    .tp-sav-lbl { font-size: 7px; color: var(--muted); text-transform: uppercase; }
+    .tp-sav-amt { font-size: 18px; font-weight: 800; color: var(--green); letter-spacing: -0.5px; margin-bottom: 6px; }
+    .tp-debt-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+    .tp-debt-row { padding: 8px 10px; display: flex; align-items: center; gap: 7px; }
+    .tp-debt-info { flex: 1; }
+    .tp-debt-name { font-size: 9px; font-weight: 700; }
+    .tp-debt-sub { font-size: 7px; color: var(--muted); margin-top: 1px; }
+    .tp-debt-expand { border-top: 1px solid var(--border); padding: 7px 10px; display: flex; flex-direction: column; gap: 5px; }
+    .tp-mini-bar-wrap { display: flex; align-items: flex-end; gap: 3px; height: 70px; padding: 0 2px; }
+    .tp-mini-bar { flex: 1; border-radius: 3px 3px 0 0; }
+    .tp-chart-labels { display: flex; gap: 3px; margin-top: 4px; }
+    .tp-chart-lbl { flex: 1; text-align: center; font-size: 6px; color: var(--muted); }
+    .tp-toggle-row { display: flex; gap: 4px; margin-bottom: 8px; }
+    .tp-toggle-btn { flex: 1; padding: 4px; border-radius: 5px; font-size: 7px; font-weight: 700; text-align: center; background: var(--surface2); color: var(--muted); }
+    .tp-toggle-btn.active { background: rgba(96,165,250,0.2); color: var(--blue); }
+    .tp-quick-card { background: linear-gradient(135deg, #1a1040, #1e293b); border: 1px solid rgba(96,165,250,0.25); border-radius: 10px; padding: 10px; }
+    .tp-quick-title { font-size: 7px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .tp-quick-total { font-size: 16px; font-weight: 800; color: var(--red); margin-bottom: 6px; }
+    .tp-quick-row { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+    .tp-quick-name { font-size: 8px; flex: 1; color: var(--text); }
+    .tp-quick-bar-bg { flex: 2; height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+    .tp-quick-bar-fill { height: 100%; border-radius: 99px; }
+
+    /* Pulse highlight ring — transform+opacity only (GPU composited, no paint) */
+    @keyframes pulseRing { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.18); opacity: 0; } }
+    .tut-hl, .tut-hl-g { position: relative; border-radius: 8px; }
+    .tut-hl::after, .tut-hl-g::after {
+      content: ''; position: absolute; inset: -3px; border-radius: inherit;
+      border: 2px solid; pointer-events: none;
+      animation: pulseRing 1.6s ease-out infinite;
+    }
+    .tut-hl::after  { border-color: rgba(96,165,250,0.7); }
+    .tut-hl-g::after { border-color: rgba(34,197,94,0.7); }
+
+    /* Step text */
+    .tut-text { text-align: center; max-width: 400px; }
+    .tut-badge { display: inline-block; font-size: 11px; font-weight: 700; color: var(--blue); background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.25); border-radius: 100px; padding: 4px 12px; margin-bottom: 10px; }
+    .tut-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 8px; }
+    .tut-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* Dots */
+    .tut-dots { display: flex; gap: 7px; }
+    .tut-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background 0.2s, width 0.2s; cursor: pointer; }
+    .tut-dot.active { background: var(--blue); width: 20px; border-radius: 99px; }
+
+    /* Nav buttons */
+    .tut-nav { display: flex; gap: 10px; }
+    .tut-nav-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 700; padding: 11px 22px; border-radius: 100px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+    .tut-nav-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .tut-nav-btn:active { opacity: 0.8; }
+    .tut-nav-btn.primary { background: var(--green); border-color: var(--green); color: #0f172a; }
+    .tut-nav-btn:disabled { opacity: 0.3; cursor: default; }
+
     /* HOW TO INSTALL */
     .install {
       padding: 80px 24px;
@@ -402,6 +507,33 @@
     </div>
   </section>
 
+  <!-- Tutorial -->
+  <section class="tutorial">
+    <div class="section-label">Tutorial</div>
+    <div class="divider"></div>
+    <h2 class="section-title">How it works</h2>
+    <div class="tut-carousel">
+
+      <div class="tut-phone-wrap" id="tutPhoneWrap">
+        <div class="tut-phone" id="tutPhone"></div>
+      </div>
+
+      <div class="tut-text">
+        <div class="tut-badge" id="tutBadge">Step 1 of 6</div>
+        <div class="tut-title" id="tutTitle"></div>
+        <div class="tut-desc" id="tutDesc"></div>
+      </div>
+
+      <div class="tut-dots" id="tutDots"></div>
+
+      <div class="tut-nav">
+        <button type="button" class="tut-nav-btn" id="tutPrev" onclick="moveTut(-1)">← Back</button>
+        <button type="button" class="tut-nav-btn primary" id="tutNext" onclick="moveTut(1)">Next →</button>
+      </div>
+
+    </div>
+  </section>
+
   <!-- Install Guide -->
   <section class="install">
     <div class="install-inner">
@@ -468,6 +600,232 @@
     }, { passive: false });
     document.addEventListener('gesturestart', e => e.preventDefault());
     document.addEventListener('gesturechange', e => e.preventDefault());
+
+    // ── Tutorial ──────────────────────────────────────────────
+    const TUT = [
+      {
+        title: 'Set Your Income',
+        desc:  'Tap the balance area and enter your salary or any income. Your remaining balance updates instantly as you spend.',
+        phone: `
+          <div class="tp-header">Overview</div>
+          <div class="tp-balance tut-hl-g">
+            <div class="tp-bal-lbl">Remaining Balance</div>
+            <div class="tp-bal-amt m">₱0.00</div>
+          </div>
+          <div class="tp-row">
+            <div class="tp-stat"><div class="tp-stat-lbl">Income</div><div class="tp-stat-val g">₱0.00</div></div>
+            <div class="tp-stat"><div class="tp-stat-lbl">Spent</div><div class="tp-stat-val r">₱0.00</div></div>
+          </div>
+          <div class="tp-btn tut-hl-g">+ Add Income</div>`
+      },
+      {
+        title: 'Log an Expense',
+        desc:  'Go to Budget Tracker, describe what you spent, pick a category, and tap Add Expense. Your balance drops automatically.',
+        phone: `
+          <div class="tp-header">Budget Tracker</div>
+          <div class="tp-label">Add Expense</div>
+          <div class="tp-form-field">🍔 Lunch with friends</div>
+          <div class="tp-form-row">
+            <div class="tp-form-field">₱250</div>
+            <div class="tp-form-field">Food ▾</div>
+          </div>
+          <div class="tp-btn tut-hl">+ Add Expense</div>
+          <div class="tp-label" style="margin-top:8px;">Expenses</div>
+          <div class="tp-item">
+            <div class="tp-item-icon" style="background:rgba(251,191,36,0.15)">🍔</div>
+            <div class="tp-item-name">Lunch with friends</div>
+            <div class="tp-item-amt r">₱250</div>
+          </div>
+          <div class="tp-item">
+            <div class="tp-item-icon" style="background:rgba(96,165,250,0.15)">🚗</div>
+            <div class="tp-item-name">Grab ride</div>
+            <div class="tp-item-amt r">₱180</div>
+          </div>`
+      },
+      {
+        title: 'Lock Away Savings',
+        desc:  'Choose the Savings category when adding an entry. It stays separate from your expenses so you never accidentally spend it.',
+        phone: `
+          <div class="tp-header">Overview</div>
+          <div class="tp-savings tut-hl-g">
+            <div class="tp-sav-lbl">Savings 🐷 Locked Away</div>
+            <div class="tp-sav-amt">₱3,000.00</div>
+            <div class="tp-item" style="background:rgba(255,255,255,0.05);margin-bottom:0">
+              <div class="tp-item-icon" style="background:rgba(34,197,94,0.15)">🐷</div>
+              <div class="tp-item-name">Car fund</div>
+              <div class="tp-item-amt g">₱1,500</div>
+            </div>
+          </div>
+          <div class="tp-balance" style="margin-top:8px">
+            <div class="tp-bal-lbl">Remaining Balance</div>
+            <div class="tp-bal-amt g">₱12,500.00</div>
+          </div>`
+      },
+      {
+        title: 'Track Your Bills',
+        desc:  'Add upcoming bills with a due date. Mark them paid when done — monthly bills auto-renew for next month so you never forget.',
+        phone: `
+          <div class="tp-header">Bills</div>
+          <div class="tp-label">Upcoming Bills</div>
+          <div class="tp-item tut-hl" style="flex-direction:column;align-items:stretch;gap:6px">
+            <div style="display:flex;align-items:center;gap:7px">
+              <div class="tp-item-icon" style="background:rgba(248,113,113,0.15)">🧾</div>
+              <div class="tp-item-name" style="flex:1">Electricity</div>
+              <div class="tp-item-amt y">₱970</div>
+            </div>
+            <div style="font-size:7px;color:#fbbf24;font-weight:600">Due in 3 days</div>
+          </div>
+          <div class="tp-item" style="margin-top:5px">
+            <div class="tp-item-icon" style="background:rgba(96,165,250,0.15)">🧾</div>
+            <div class="tp-item-name">Internet 🔄 Monthly</div>
+            <div class="tp-item-amt y">₱1,299</div>
+          </div>
+          <div class="tp-btn" style="margin-top:8px;background:var(--green);font-size:9px">✓ Mark as Paid</div>`
+      },
+      {
+        title: 'Manage Debt',
+        desc:  'Log money you owe and track payments. Pay in full or partially — each payment is recorded with a history and can be undone.',
+        phone: `
+          <div class="tp-header">Debt</div>
+          <div class="tp-debt-card tut-hl">
+            <div class="tp-debt-row">
+              <div class="tp-item-icon" style="background:rgba(248,113,113,0.15)">💳</div>
+              <div class="tp-debt-info">
+                <div class="tp-debt-name">Kuya J</div>
+                <div class="tp-debt-sub">Remaining: ₱1,000.00</div>
+              </div>
+              <div class="tp-item-amt r">₱1,500</div>
+            </div>
+            <div class="tp-debt-expand">
+              <div style="font-size:7px;color:var(--muted);margin-bottom:3px">Added on May 10, 2026</div>
+              <div class="tp-btn" style="font-size:8px;padding:6px;margin-bottom:0">✓ Pay in Full</div>
+              <div class="tp-btn blue" style="font-size:8px;padding:6px;margin-bottom:0">⬤ Partial Payment</div>
+              <div style="font-size:7px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:5px">Payment History</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:6px;padding:5px 7px;font-size:7px">
+                <span style="color:var(--blue);font-weight:700">⬤ PARTIAL · May 10</span>
+                <span style="color:var(--green);font-weight:700">₱500</span>
+              </div>
+            </div>
+          </div>`
+      },
+      {
+        title: 'View Spending Stats',
+        desc:  'The Spending Stats tab shows a daily, weekly, or monthly bar chart of your spending. Tap the quick card on Overview to jump straight to it.',
+        phone: `
+          <div class="tp-header">Spending Stats</div>
+          <div class="tp-toggle-row">
+            <div class="tp-toggle-btn active">Daily</div>
+            <div class="tp-toggle-btn">Weekly</div>
+            <div class="tp-toggle-btn">Monthly</div>
+          </div>
+          <div class="tp-mini-bar-wrap tut-hl">
+            <div class="tp-mini-bar" style="height:30%;background:rgba(96,165,250,0.7)"></div>
+            <div class="tp-mini-bar" style="height:55%;background:rgba(96,165,250,0.7)"></div>
+            <div class="tp-mini-bar" style="height:40%;background:rgba(96,165,250,0.7)"></div>
+            <div class="tp-mini-bar" style="height:80%;background:rgba(34,197,94,0.85)"></div>
+            <div class="tp-mini-bar" style="height:35%;background:rgba(96,165,250,0.7)"></div>
+            <div class="tp-mini-bar" style="height:60%;background:rgba(96,165,250,0.7)"></div>
+            <div class="tp-mini-bar" style="height:45%;background:rgba(96,165,250,0.7)"></div>
+          </div>
+          <div class="tp-chart-labels">
+            <div class="tp-chart-lbl">Mon</div><div class="tp-chart-lbl">Tue</div>
+            <div class="tp-chart-lbl">Wed</div><div class="tp-chart-lbl">Thu</div>
+            <div class="tp-chart-lbl">Fri</div><div class="tp-chart-lbl">Sat</div>
+            <div class="tp-chart-lbl">Sun</div>
+          </div>
+          <div class="tp-quick-card" style="margin-top:8px">
+            <div class="tp-quick-title">📈 Quick View · Overview Card</div>
+            <div class="tp-quick-row">
+              <div class="tp-quick-name">🍔 Food</div>
+              <div class="tp-quick-bar-bg"><div class="tp-quick-bar-fill" style="width:100%;background:rgba(34,197,94,0.8)"></div></div>
+            </div>
+            <div class="tp-quick-row">
+              <div class="tp-quick-name">🚗 Transport</div>
+              <div class="tp-quick-bar-bg"><div class="tp-quick-bar-fill" style="width:60%;background:rgba(96,165,250,0.7)"></div></div>
+            </div>
+          </div>`
+      }
+    ];
+
+    let tutIdx = 0;
+    let tutAnimating = false;
+
+    function updateTutMeta() {
+      const prev  = document.getElementById('tutPrev');
+      const next  = document.getElementById('tutNext');
+      const badge = document.getElementById('tutBadge');
+      const title = document.getElementById('tutTitle');
+      const desc  = document.getElementById('tutDesc');
+      const dots  = document.getElementById('tutDots');
+      const step  = TUT[tutIdx];
+
+      badge.textContent = `Step ${tutIdx + 1} of ${TUT.length}`;
+      title.textContent = step.title;
+      desc.textContent  = step.desc;
+      dots.innerHTML = TUT.map((_, i) =>
+        `<div class="tut-dot${i === tutIdx ? ' active' : ''}" onclick="goTut(${i})"></div>`
+      ).join('');
+      prev.disabled = tutIdx === 0;
+      const isLast = tutIdx === TUT.length - 1;
+      next.textContent = isLast ? '🚀 Get Started' : 'Next →';
+      next.onclick = isLast ? () => { window.location.href = 'app.html'; } : () => moveTut(1);
+    }
+
+    function renderTut(dir) {
+      const wrap     = document.getElementById('tutPhoneWrap');
+      const oldPhone = document.getElementById('tutPhone');
+
+      // Lock wrap height so it doesn't collapse while old phone is absolute
+      wrap.style.height = oldPhone.offsetHeight + 'px';
+
+      // Slide old phone out (make it absolute so new phone can take its place)
+      oldPhone.style.position = 'absolute';
+      oldPhone.style.inset = '0';
+      oldPhone.removeAttribute('id');
+      oldPhone.classList.add(dir >= 0 ? 'slide-out-left' : 'slide-out-right');
+
+      // Build and insert new phone
+      const newPhone = document.createElement('div');
+      newPhone.id = 'tutPhone';
+      newPhone.className = 'tut-phone';
+      newPhone.innerHTML = `<div class="tut-notch"></div>` + TUT[tutIdx].phone;
+      wrap.appendChild(newPhone);
+      newPhone.classList.add(dir >= 0 ? 'slide-in-left' : 'slide-in-right');
+
+      // Clean up when new phone finishes sliding in
+      newPhone.addEventListener('animationend', () => {
+        oldPhone.remove();
+        wrap.style.height = '';
+        tutAnimating = false;
+      }, { once: true });
+
+      updateTutMeta();
+    }
+
+    function moveTut(dir) {
+      if (tutAnimating) return;
+      const next = Math.max(0, Math.min(TUT.length - 1, tutIdx + dir));
+      if (next === tutIdx) return;
+      tutAnimating = true;
+      tutIdx = next;
+      renderTut(dir);
+    }
+
+    function goTut(i) {
+      if (tutAnimating || i === tutIdx) return;
+      const dir = i > tutIdx ? 1 : -1;
+      tutIdx = i;
+      tutAnimating = true;
+      renderTut(dir);
+    }
+
+    // Initial render without animation
+    (function() {
+      const phone = document.getElementById('tutPhone');
+      phone.innerHTML = `<div class="tut-notch"></div>` + TUT[0].phone;
+      updateTutMeta();
+    })();
+    // ─────────────────────────────────────────────────────────
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
