@@ -235,7 +235,7 @@
     .debt-pay-item-date { font-size: 11px; color: var(--muted); margin-top: 1px; }
     .debt-pay-item-amount { font-size: 14px; font-weight: 700; color: var(--green); flex-shrink: 0; }
 
-    /* Spending Stats */
+    /* Budget Stats */
     .stats-period-row { display: flex; gap: 8px; margin-bottom: 14px; }
     .stats-period-btn { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 13px; font-weight: 600; border-radius: 10px; padding: 10px; cursor: pointer; transition: all 0.15s; }
     .stats-period-btn:active { opacity: 0.8; }
@@ -251,6 +251,31 @@
     .stats-sum-value.g { color: var(--green); }
     .stats-sum-value.y { color: var(--yellow); }
     .stats-empty { text-align: center; padding: 40px 16px; color: var(--muted); font-size: 14px; }
+    .savings-breakdown-total-row { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .savings-breakdown-total-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+    .savings-breakdown-total-val { font-size: 18px; font-weight: 800; color: var(--green); }
+    .savings-breakdown-list { display: flex; flex-direction: column; gap: 10px; }
+    .savings-breakdown-row { display: flex; align-items: center; gap: 10px; }
+    .savings-breakdown-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(34,197,94,0.15); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .savings-breakdown-info { flex: 1; min-width: 0; }
+    .savings-breakdown-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .savings-breakdown-date { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .savings-breakdown-bar-wrap { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; margin-top: 5px; }
+    .savings-breakdown-bar { height: 100%; background: var(--green); border-radius: 2px; min-width: 2px; transition: width 0.4s ease; }
+    .savings-breakdown-amt { font-size: 14px; font-weight: 700; color: var(--green); flex-shrink: 0; }
+    .savings-breakdown-name-row { display: flex; align-items: center; gap: 6px; }
+    .svbd-count { font-size: 11px; font-weight: 700; background: rgba(34,197,94,0.15); color: var(--green); padding: 2px 7px; border-radius: 100px; flex-shrink: 0; }
+    .svbd-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .svbd-chevron { font-size: 13px; color: var(--muted); transition: transform 0.2s; line-height: 1; }
+    .svbd-pressable { cursor: pointer; transition: opacity 0.15s; }
+    .svbd-pressable:active { opacity: 0.7; }
+    .savings-breakdown-group { display: flex; flex-direction: column; }
+    .svbd-detail { display: none; flex-direction: column; gap: 0; padding: 4px 0 0 42px; }
+    .svbd-detail.open { display: flex; }
+    .svbd-sub-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+    .svbd-sub-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(34,197,94,0.5); flex-shrink: 0; }
+    .svbd-sub-date { flex: 1; font-size: 12px; color: var(--muted); }
+    .svbd-sub-amt { font-size: 13px; font-weight: 600; color: var(--green); }
     .btn-revert-pay { background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 600; border-radius: 6px; padding: 3px 7px; cursor: pointer; flex-shrink: 0; transition: color 0.15s, border-color 0.15s; }
     .btn-revert-pay:active { color: var(--red); border-color: var(--red); }
     .bill-chevron { color: var(--muted); font-size: 11px; margin-left: 2px; transition: transform 0.2s; flex-shrink: 0; }
@@ -625,7 +650,7 @@
         <span class="s-icon">💳</span> Debt
       </button>
       <button class="sidebar-btn" id="navStats" onclick="switchView('stats')">
-        <span class="s-icon">📈</span> Spending Stats
+        <span class="s-icon">📈</span> Budget Statistics
       </button>
     </nav>
   </aside>
@@ -688,7 +713,7 @@
     <!-- Spending Quick Card -->
     <div class="spending-quick-card" id="spendingQuickCard" onclick="switchView('stats')">
       <div class="spending-quick-header">
-        <span class="spending-quick-title">📈 Spending Stats</span>
+        <span class="spending-quick-title">📈 Budget Statistics</span>
         <span class="spending-quick-link">View all →</span>
       </div>
       <div class="spending-quick-total" id="sqTotal">₱0.00</div>
@@ -830,7 +855,7 @@
 
   </div><!-- /viewDebt -->
 
-  <!-- Spending Stats View -->
+  <!-- Budget Stats View -->
   <div class="view" id="viewStats">
     <div class="section">
       <div class="section-title">Spending Graph</div>
@@ -858,6 +883,43 @@
         </div>
       </div>
     </div>
+
+    <!-- Savings Statistics -->
+    <div class="section">
+      <div class="section-title">Savings Graph</div>
+      <div class="stats-chart-wrap">
+        <div class="stats-period-row">
+          <button type="button" class="stats-period-btn active" id="svDaily"   onclick="setSavingsPeriod('daily')">Daily</button>
+          <button type="button" class="stats-period-btn"        id="svWeekly"  onclick="setSavingsPeriod('weekly')">Weekly</button>
+          <button type="button" class="stats-period-btn"        id="svMonthly" onclick="setSavingsPeriod('monthly')">Monthly</button>
+        </div>
+        <div class="stats-chart-label" id="svChartLabel">Last 7 Days</div>
+        <canvas class="stats-canvas" id="savingsChart" height="200"></canvas>
+        <div class="stats-summary-row">
+          <div class="stats-sum-card">
+            <div class="stats-sum-label" id="svLabelTotal">Total</div>
+            <div class="stats-sum-value g" id="svValTotal">₱0.00</div>
+          </div>
+          <div class="stats-sum-card">
+            <div class="stats-sum-label" id="svLabelAvg">Daily Avg</div>
+            <div class="stats-sum-value g" id="svValAvg">₱0.00</div>
+          </div>
+          <div class="stats-sum-card">
+            <div class="stats-sum-label">Peak</div>
+            <div class="stats-sum-value y" id="svValPeak">₱0.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Savings Breakdown -->
+    <div class="section">
+      <div class="section-title">Savings Breakdown</div>
+      <div class="stats-chart-wrap" id="savingsBreakdownWrap">
+        <div class="spending-quick-empty">No savings recorded yet</div>
+      </div>
+    </div>
+
   </div><!-- /viewStats -->
 
   <!-- Modal -->
@@ -1995,6 +2057,262 @@
       _chartAnimId = requestAnimationFrame(animate);
     }
 
+    let _svPeriod = 'daily';
+    let _svChartAnimId = null;
+
+    function setSavingsPeriod(period) {
+      _svPeriod = period;
+      ['daily', 'weekly', 'monthly'].forEach(p => {
+        const id = 'sv' + p.charAt(0).toUpperCase() + p.slice(1);
+        document.getElementById(id).classList.toggle('active', p === period);
+      });
+      drawSavingsChart(period);
+    }
+
+    function getAllSavingsEntries() {
+      const all = [];
+      (state.savings || []).forEach(e => all.push(e));
+      (state.history || []).forEach(week => {
+        (week.savings || []).forEach(e => all.push(e));
+      });
+      return all;
+    }
+
+    function getSavingsData(period) {
+      const entries = getAllSavingsEntries();
+      const now = new Date();
+
+      if (period === 'daily') {
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(now);
+          d.setDate(d.getDate() - i);
+          d.setHours(0, 0, 0, 0);
+          days.push({ label: d.toLocaleDateString('en-PH', { weekday: 'short' }), total: 0, key: d.toDateString() });
+        }
+        entries.forEach(e => {
+          const key = new Date(e.date).toDateString();
+          const slot = days.find(d => d.key === key);
+          if (slot) slot.total += e.amount;
+        });
+        return days;
+      }
+
+      if (period === 'weekly') {
+        const getMonday = d => { const c = new Date(d); const day = c.getDay(); c.setDate(c.getDate() - (day === 0 ? 6 : day - 1)); c.setHours(0,0,0,0); return c; };
+        const weeks = [];
+        for (let i = 7; i >= 0; i--) {
+          const ref = new Date(now); ref.setDate(ref.getDate() - i * 7);
+          const start = getMonday(ref);
+          const end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23,59,59,999);
+          const key = start.getTime();
+          if (!weeks.find(w => w.key === key))
+            weeks.push({ label: start.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }), total: 0, key, startTs: start.getTime(), endTs: end.getTime() });
+        }
+        entries.forEach(e => {
+          const ts = new Date(e.date).getTime();
+          weeks.forEach(w => { if (ts >= w.startTs && ts <= w.endTs) w.total += e.amount; });
+        });
+        return weeks;
+      }
+
+      if (period === 'monthly') {
+        const months = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          months.push({ label: d.toLocaleDateString('en-PH', { month: 'short' }), total: 0, year: d.getFullYear(), month: d.getMonth() });
+        }
+        entries.forEach(e => {
+          const ed = new Date(e.date);
+          const slot = months.find(m => m.year === ed.getFullYear() && m.month === ed.getMonth());
+          if (slot) slot.total += e.amount;
+        });
+        return months;
+      }
+
+      return [];
+    }
+
+    function drawSavingsChart(period) {
+      const canvas = document.getElementById('savingsChart');
+      if (!canvas || !canvas.offsetParent) return;
+
+      const data = getSavingsData(period);
+      const total = data.reduce((s, d) => s + d.total, 0);
+      const peak  = data.length ? Math.max(...data.map(d => d.total)) : 0;
+      const avg   = data.length ? total / data.length : 0;
+
+      const periodMeta = {
+        daily:   { chartLabel: 'Last 7 Days',   totalLabel: '7-Day Total', avgLabel: 'Daily Avg' },
+        weekly:  { chartLabel: 'Last 8 Weeks',  totalLabel: '8-Wk Total',  avgLabel: 'Weekly Avg' },
+        monthly: { chartLabel: 'Last 6 Months', totalLabel: '6-Mo Total',  avgLabel: 'Monthly Avg' },
+      };
+      const meta = periodMeta[period];
+      document.getElementById('svChartLabel').textContent = meta.chartLabel;
+      document.getElementById('svLabelTotal').textContent = meta.totalLabel;
+      document.getElementById('svLabelAvg').textContent   = meta.avgLabel;
+      document.getElementById('svValTotal').textContent   = fmt(total);
+      document.getElementById('svValAvg').textContent     = fmt(avg);
+      document.getElementById('svValPeak').textContent    = fmt(peak);
+
+      const dpr  = window.devicePixelRatio || 1;
+      const cssW = canvas.offsetWidth;
+      const cssH = 200;
+      canvas.width  = cssW * dpr;
+      canvas.height = cssH * dpr;
+      canvas.style.height = cssH + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const padL = 48, padR = 8, padT = 12, padB = 32;
+      const chartW = cssW - padL - padR;
+      const chartH = cssH - padT - padB;
+
+      const C_GRID   = '#334155';
+      const C_MUTED  = '#94a3b8';
+      const C_BAR    = '#22c55e';
+      const C_PEAK   = '#fbbf24';
+      const C_BAR_BG = 'rgba(34,197,94,0.07)';
+
+      const maxVal   = peak > 0 ? peak * 1.25 : 1000;
+      const gridLines = 4;
+      const n   = data.length;
+      const gap = 5;
+      const barW = (chartW - gap * (n - 1)) / n;
+
+      function frame(progress) {
+        const p = 1 - Math.pow(1 - progress, 3);
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= gridLines; i++) {
+          const y = padT + chartH - (i / gridLines) * chartH;
+          const val = (i / gridLines) * maxVal;
+          ctx.strokeStyle = C_GRID;
+          ctx.globalAlpha = i === 0 ? 0.6 : 0.25;
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + chartW, y); ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = C_MUTED;
+          const yLabel = val >= 1000 ? '₱' + (val / 1000).toFixed(val >= 10000 ? 0 : 1) + 'k' : '₱' + Math.round(val);
+          ctx.fillText(yLabel, padL - 5, y + 3.5);
+        }
+
+        data.forEach((d, i) => {
+          const x    = padL + i * (barW + gap);
+          const fullH = maxVal > 0 ? (d.total / maxVal) * chartH : 0;
+          const barH  = fullH * p;
+          const y     = padT + chartH - barH;
+          const isPeak = d.total > 0 && d.total === peak;
+
+          ctx.fillStyle = C_BAR_BG;
+          fillRoundRect(ctx, x, padT, barW, chartH, 5);
+          ctx.fill();
+
+          if (d.total > 0) {
+            ctx.fillStyle = isPeak ? C_PEAK : C_BAR;
+            ctx.globalAlpha = isPeak ? p : p * 0.9;
+            fillRoundRect(ctx, x, y, barW, barH, 5);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+
+          ctx.fillStyle = C_MUTED;
+          ctx.globalAlpha = p;
+          ctx.textAlign = 'center';
+          ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText(d.label, x + barW / 2, cssH - padB + 14);
+          ctx.globalAlpha = 1;
+        });
+      }
+
+      if (_svChartAnimId) cancelAnimationFrame(_svChartAnimId);
+      const DURATION = 600;
+      const startTime = performance.now();
+      function animate(now) {
+        const progress = Math.min((now - startTime) / DURATION, 1);
+        frame(progress);
+        if (progress < 1) _svChartAnimId = requestAnimationFrame(animate);
+        else _svChartAnimId = null;
+      }
+      _svChartAnimId = requestAnimationFrame(animate);
+    }
+
+    function renderSavingsBreakdown() {
+      const wrap = document.getElementById('savingsBreakdownWrap');
+      const entries = getAllSavingsEntries();
+      if (entries.length === 0) {
+        wrap.innerHTML = '<div class="spending-quick-empty">No savings recorded yet</div>';
+        return;
+      }
+
+      const totalAll = entries.reduce((s, e) => s + e.amount, 0);
+
+      // Group by name (case-insensitive)
+      const groupMap = new Map();
+      entries.forEach(e => {
+        const key = e.name.toLowerCase();
+        if (!groupMap.has(key)) groupMap.set(key, { name: e.name, total: 0, entries: [] });
+        const g = groupMap.get(key);
+        g.total += e.amount;
+        g.entries.push(e);
+      });
+
+      const groups = [...groupMap.values()].sort((a, b) => b.total - a.total);
+
+      const rows = groups.map((g, gi) => {
+        const pct = totalAll > 0 ? (g.total / totalAll) * 100 : 0;
+        const hasMultiple = g.entries.length > 1;
+        const subRows = g.entries.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map(e => {
+          const dateStr = new Date(e.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+          return `
+            <div class="svbd-sub-row">
+              <div class="svbd-sub-dot"></div>
+              <div class="svbd-sub-date">${dateStr}</div>
+              <div class="svbd-sub-amt">${fmt(e.amount)}</div>
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="savings-breakdown-group">
+            <div class="savings-breakdown-row ${hasMultiple ? 'svbd-pressable' : ''}" onclick="${hasMultiple ? `toggleSavingsGroup(${gi})` : ''}">
+              <div class="savings-breakdown-icon">🐷</div>
+              <div class="savings-breakdown-info">
+                <div class="savings-breakdown-name-row">
+                  <div class="savings-breakdown-name">${escHtml(g.name)}</div>
+                  ${hasMultiple ? `<div class="svbd-count">${g.entries.length}×</div>` : ''}
+                </div>
+                <div class="savings-breakdown-bar-wrap">
+                  <div class="savings-breakdown-bar" style="width:${pct.toFixed(1)}%"></div>
+                </div>
+              </div>
+              <div class="svbd-right">
+                <div class="savings-breakdown-amt">${fmt(g.total)}</div>
+                ${hasMultiple ? `<div class="svbd-chevron" id="svbdChevron${gi}">▾</div>` : ''}
+              </div>
+            </div>
+            ${hasMultiple ? `<div class="svbd-detail" id="svbdDetail${gi}">${subRows}</div>` : ''}
+          </div>`;
+      }).join('');
+
+      wrap.innerHTML = `
+        <div class="savings-breakdown-total-row">
+          <span class="savings-breakdown-total-label">All-time Savings</span>
+          <span class="savings-breakdown-total-val">${fmt(totalAll)}</span>
+        </div>
+        <div class="savings-breakdown-list">${rows}</div>`;
+    }
+
+    function toggleSavingsGroup(gi) {
+      const detail = document.getElementById('svbdDetail' + gi);
+      const chevron = document.getElementById('svbdChevron' + gi);
+      if (!detail) return;
+      const open = detail.classList.toggle('open');
+      if (chevron) chevron.style.transform = open ? 'rotate(180deg)' : '';
+    }
+
     function fillRoundRect(ctx, x, y, w, h, r) {
       r = Math.min(r, w / 2, Math.max(h / 2, 0));
       ctx.beginPath();
@@ -2024,11 +2342,15 @@
       document.getElementById('navBills').classList.toggle('active', view === 'bills');
       document.getElementById('navDebt').classList.toggle('active', view === 'debt');
       document.getElementById('navStats').classList.toggle('active', view === 'stats');
-      const titles = { overview: 'Overview', tracker: 'Budget Tracker', history: 'History', bills: 'Bills', debt: 'Debt', stats: 'Spending Stats' };
+      const titles = { overview: 'Overview', tracker: 'Budget Tracker', history: 'History', bills: 'Bills', debt: 'Debt', stats: 'Budget Statistics' };
       document.getElementById('headerTitle').textContent = titles[view] || 'Budget Tracker';
       closeSidebar();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      if (view === 'stats') requestAnimationFrame(() => drawSpendingChart(_spendingPeriod));
+      if (view === 'stats') requestAnimationFrame(() => {
+        drawSpendingChart(_spendingPeriod);
+        drawSavingsChart(_svPeriod);
+        renderSavingsBreakdown();
+      });
     }
 
     // Swipe gestures for sidebar
