@@ -276,6 +276,7 @@
     .svbd-sub-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(34,197,94,0.5); flex-shrink: 0; }
     .svbd-sub-date { flex: 1; font-size: 12px; color: var(--muted); }
     .svbd-sub-amt { font-size: 13px; font-weight: 600; color: var(--green); }
+    .svbd-see-all { font-size: 11px; color: var(--muted); text-align: center; padding: 4px 0 2px; }
     .btn-revert-pay { background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 600; border-radius: 6px; padding: 3px 7px; cursor: pointer; flex-shrink: 0; transition: color 0.15s, border-color 0.15s; }
     .btn-revert-pay:active { color: var(--red); border-color: var(--red); }
     .bill-chevron { color: var(--muted); font-size: 11px; margin-left: 2px; transition: transform 0.2s; flex-shrink: 0; }
@@ -446,8 +447,12 @@
     .brow-warn { font-size: 12px; color: var(--red); margin-top: 8px; text-align: center; }
 
     /* Toast */
-    .toast { position: fixed; bottom: calc(var(--safe-bottom) + 90px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 18px; border-radius: 100px; opacity: 0; pointer-events: none; transition: all 0.25s ease; white-space: nowrap; z-index: 100; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast { position: fixed; bottom: calc(var(--safe-bottom) + 90px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 18px; border-radius: 100px; opacity: 0; pointer-events: none; transition: all 0.25s ease; white-space: nowrap; z-index: 100; display: flex; align-items: center; gap: 10px; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+    .toast-undo-btn { background: transparent; border: 1px solid rgba(96,165,250,0.5); color: var(--blue); font-size: 12px; font-weight: 700; border-radius: 100px; padding: 3px 10px; cursor: pointer; }
+    .toast-undo-btn.hidden { display: none; }
+    .savings-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.2s ease; cursor: pointer; transition: opacity 0.15s; }
+    .savings-item:active { opacity: 0.7; }
 
     /* Ripple */
     button { position: relative; overflow: hidden; }
@@ -511,14 +516,21 @@
     .savings-badge { font-size: 11px; font-weight: 700; background: rgba(34,197,94,0.2); color: var(--green); padding: 3px 9px; border-radius: 100px; border: 1px solid rgba(34,197,94,0.3); }
     .savings-amount { font-size: 32px; font-weight: 800; color: var(--green); letter-spacing: -1px; line-height: 1; }
     .savings-list-wrap { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
-    .savings-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.2s ease; }
     .savings-item-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: rgba(34,197,94,0.15); }
     .savings-item-info { flex: 1; min-width: 0; }
     .savings-item-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .savings-item-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .savings-item-amount { font-size: 15px; font-weight: 700; color: var(--green); flex-shrink: 0; }
-    .btn-delete-saving { background: transparent; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; }
-    .btn-delete-saving:active { color: var(--red); }
+    .savings-item-chevron { color: var(--muted); font-size: 13px; flex-shrink: 0; transition: transform 0.2s; }
+    .savings-edit-panel { display: none; flex-direction: column; gap: 8px; padding: 10px 12px 12px; background: rgba(255,255,255,0.04); border-radius: 0 0 10px 10px; margin-top: -6px; border: 1px solid var(--border); border-top: none; }
+    .savings-edit-panel.open { display: flex; }
+    .savings-edit-input { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 14px; border-radius: 8px; padding: 9px 12px; width: 100%; outline: none; }
+    .savings-edit-input:focus { border-color: var(--green); }
+    .savings-edit-actions { display: flex; gap: 8px; }
+    .savings-edit-save { flex: 1; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: var(--green); font-size: 13px; font-weight: 700; border-radius: 8px; padding: 9px; cursor: pointer; }
+    .savings-edit-save:active { opacity: 0.75; }
+    .savings-edit-remove { flex: 1; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--red); font-size: 13px; font-weight: 700; border-radius: 8px; padding: 9px; cursor: pointer; }
+    .savings-edit-remove:active { opacity: 0.75; }
     .hidden { display: none; }
 
     /* Sidebar overlay */
@@ -951,7 +963,10 @@
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast">
+    <span id="toastMsg"></span>
+    <button type="button" class="toast-undo-btn hidden" id="toastUndoBtn" onclick="triggerToastUndo()">Undo</button>
+  </div>
 
   <script>
     const CATEGORY = {
@@ -971,7 +986,7 @@
         const s = localStorage.getItem('budgetTracker');
         if (s) return JSON.parse(s);
       } catch {}
-      return { salary: 0, expenses: [], savings: [], history: [], bills: [], billHistory: [], debts: [] };
+      return { salary: 0, expenses: [], savings: [], history: [], bills: [], billHistory: [], debts: [], deletedSavingKeys: [] };
     }
 
     function saveState() {
@@ -981,6 +996,7 @@
       if (!state.bills) state.bills = [];
       if (!state.billHistory) state.billHistory = [];
       if (!state.debts) state.debts = [];
+      if (!state.deletedSavingKeys) state.deletedSavingKeys = [];
       localStorage.setItem('budgetTracker', JSON.stringify(state));
     }
 
@@ -1046,14 +1062,22 @@
           const date = new Date(sv.date);
           const dateStr = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
           return `
-            <div class="savings-item">
+            <div class="savings-item" id="si-${sv.id}" onclick="toggleSavingEdit('${sv.id}')">
               <div class="savings-item-icon">🐷</div>
               <div class="savings-item-info">
                 <div class="savings-item-name">${escHtml(sv.name)}</div>
                 <div class="savings-item-date">${dateStr}</div>
               </div>
               <div class="savings-item-amount">${fmt(sv.amount)}</div>
-              <button class="btn-delete-saving" onclick="deleteSaving('${sv.id}')" aria-label="Delete">✕</button>
+              <div class="savings-item-chevron" id="sic-${sv.id}">▾</div>
+            </div>
+            <div class="savings-edit-panel" id="sep-${sv.id}">
+              <input type="text" class="savings-edit-input" id="sen-${sv.id}" value="${escHtml(sv.name)}" placeholder="Name" maxlength="50" onclick="event.stopPropagation()">
+              <input type="text" class="savings-edit-input" id="sea-${sv.id}" value="${sv.amount}" placeholder="Amount" inputmode="decimal" pattern="[0-9]*\\.?[0-9]*" onclick="event.stopPropagation()">
+              <div class="savings-edit-actions">
+                <button type="button" class="savings-edit-save" onclick="event.stopPropagation(); saveSavingEdit('${sv.id}')">Save</button>
+                <button type="button" class="savings-edit-remove" onclick="event.stopPropagation(); deleteSaving('${sv.id}')">Remove</button>
+              </div>
             </div>`;
         }).join('');
       }
@@ -1726,6 +1750,7 @@
 
       if (category === 'savings') {
         if (!state.savings) state.savings = [];
+        if (!state.deletedSavingKeys) state.deletedSavingKeys = [];
         const existing = state.savings.find(s => s.name.toLowerCase() === name.toLowerCase());
         if (existing) {
           existing.amount = +(existing.amount + amount).toFixed(2);
@@ -1735,6 +1760,9 @@
           state.savings.push(entry);
           showToast('Saved to Savings! 🐷');
         }
+        // Clear any deleted key for this name so it re-appears in stats
+        const nameLower = name.toLowerCase();
+        state.deletedSavingKeys = state.deletedSavingKeys.filter(k => k !== nameLower);
       } else {
         state.expenses.push(entry);
         showToast('Expense added!');
@@ -1755,11 +1783,62 @@
       showToast('Expense removed');
     }
 
-    function deleteSaving(id) {
-      state.savings = state.savings.filter(e => e.id !== id);
+    function savingKey(e) {
+      return e.name.toLowerCase();
+    }
+
+    function toggleSavingEdit(id) {
+      const panel = document.getElementById('sep-' + id);
+      const chevron = document.getElementById('sic-' + id);
+      if (!panel) return;
+      // Close any other open panels first
+      document.querySelectorAll('.savings-edit-panel.open').forEach(p => {
+        if (p.id !== 'sep-' + id) {
+          p.classList.remove('open');
+          const otherId = p.id.replace('sep-', '');
+          const otherChev = document.getElementById('sic-' + otherId);
+          if (otherChev) otherChev.style.transform = '';
+        }
+      });
+      const open = panel.classList.toggle('open');
+      chevron.style.transform = open ? 'rotate(180deg)' : '';
+      if (open) {
+        setTimeout(() => document.getElementById('sen-' + id)?.focus(), 50);
+      }
+    }
+
+    function saveSavingEdit(id) {
+      const entry = state.savings.find(e => e.id === id);
+      if (!entry) return;
+      const nameEl = document.getElementById('sen-' + id);
+      const amtEl  = document.getElementById('sea-' + id);
+      const newName = nameEl?.value.trim();
+      const newAmt  = parseFloat(amtEl?.value);
+      if (!newName) { showToast('Name cannot be empty'); nameEl?.focus(); return; }
+      if (isNaN(newAmt) || newAmt <= 0) { showToast('Enter a valid amount'); amtEl?.focus(); return; }
+      entry.name = newName;
+      entry.amount = newAmt;
       saveState();
       render();
-      showToast('Saving removed');
+      showToast('Saving updated 🐷');
+    }
+
+    function deleteSaving(id) {
+      if (!state.deletedSavingKeys) state.deletedSavingKeys = [];
+      const entry = state.savings.find(e => e.id === id);
+      if (!entry) return;
+      const key = savingKey(entry);
+      state.savings = state.savings.filter(e => e.id !== id);
+      state.deletedSavingKeys.push(key);
+      saveState();
+      render();
+      showToast('Saving removed', () => {
+        state.deletedSavingKeys = state.deletedSavingKeys.filter(k => k !== key);
+        state.savings.push(entry);
+        saveState();
+        render();
+        showToast('Saving restored 🐷');
+      });
     }
 
     async function confirmReset() {
@@ -1775,12 +1854,26 @@
     }
 
     let toastTimer;
-    function showToast(msg) {
+    let _toastUndoFn = null;
+
+    function showToast(msg, undoFn) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
+      document.getElementById('toastMsg').textContent = msg;
+      const undoBtn = document.getElementById('toastUndoBtn');
+      _toastUndoFn = undoFn || null;
+      undoBtn.classList.toggle('hidden', !undoFn);
       t.classList.add('show');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+      toastTimer = setTimeout(() => t.classList.remove('show'), undoFn ? 4000 : 2500);
+    }
+
+    function triggerToastUndo() {
+      if (_toastUndoFn) {
+        _toastUndoFn();
+        _toastUndoFn = null;
+      }
+      clearTimeout(toastTimer);
+      document.getElementById('toast').classList.remove('show');
     }
 
     function updateDate() {
@@ -2070,10 +2163,11 @@
     }
 
     function getAllSavingsEntries() {
+      const deleted = new Set(state.deletedSavingKeys || []);
       const all = [];
-      (state.savings || []).forEach(e => all.push(e));
+      (state.savings || []).forEach(e => { if (!deleted.has(savingKey(e))) all.push(e); });
       (state.history || []).forEach(week => {
-        (week.savings || []).forEach(e => all.push(e));
+        (week.savings || []).forEach(e => { if (!deleted.has(savingKey(e))) all.push(e); });
       });
       return all;
     }
@@ -2264,8 +2358,11 @@
 
       const rows = groups.map((g, gi) => {
         const pct = totalAll > 0 ? (g.total / totalAll) * 100 : 0;
-        const hasMultiple = g.entries.length > 1;
-        const subRows = g.entries.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map(e => {
+        const sorted = g.entries.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+        const preview = sorted.slice(0, 3);
+        const remaining = sorted.length - 3;
+
+        const subRows = preview.map(e => {
           const dateStr = new Date(e.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
           return `
             <div class="svbd-sub-row">
@@ -2275,14 +2372,18 @@
             </div>`;
         }).join('');
 
+        const seeAll = remaining > 0
+          ? `<div class="svbd-see-all">+${remaining} more</div>`
+          : '';
+
         return `
           <div class="savings-breakdown-group">
-            <div class="savings-breakdown-row ${hasMultiple ? 'svbd-pressable' : ''}" onclick="${hasMultiple ? `toggleSavingsGroup(${gi})` : ''}">
+            <div class="savings-breakdown-row svbd-pressable" onclick="toggleSavingsGroup(${gi})">
               <div class="savings-breakdown-icon">🐷</div>
               <div class="savings-breakdown-info">
                 <div class="savings-breakdown-name-row">
                   <div class="savings-breakdown-name">${escHtml(g.name)}</div>
-                  ${hasMultiple ? `<div class="svbd-count">${g.entries.length}×</div>` : ''}
+                  <div class="svbd-count">${g.entries.length}×</div>
                 </div>
                 <div class="savings-breakdown-bar-wrap">
                   <div class="savings-breakdown-bar" style="width:${pct.toFixed(1)}%"></div>
@@ -2290,10 +2391,10 @@
               </div>
               <div class="svbd-right">
                 <div class="savings-breakdown-amt">${fmt(g.total)}</div>
-                ${hasMultiple ? `<div class="svbd-chevron" id="svbdChevron${gi}">▾</div>` : ''}
+                <div class="svbd-chevron" id="svbdChevron${gi}">▾</div>
               </div>
             </div>
-            ${hasMultiple ? `<div class="svbd-detail" id="svbdDetail${gi}">${subRows}</div>` : ''}
+            <div class="svbd-detail" id="svbdDetail${gi}">${subRows}${seeAll}</div>
           </div>`;
       }).join('');
 
