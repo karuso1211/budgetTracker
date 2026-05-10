@@ -168,22 +168,7 @@
     .btn-cancel:active { opacity: 0.8; }
 
     /* Save Week Button */
-    .btn-save-week {
-      background: linear-gradient(135deg, #7c3aed, #a78bfa);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      border: none;
-      border-radius: 10px;
-      padding: 13px;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 4px;
-      transition: opacity 0.15s;
-    }
-    .btn-save-week:active { opacity: 0.8; }
-
-    .btn-reset { background: transparent; border: 1px solid var(--border); color: var(--red); font-size: 13px; font-weight: 600; padding: 10px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 8px; }
+.btn-reset { background: transparent; border: 1px solid var(--border); color: var(--red); font-size: 13px; font-weight: 600; padding: 10px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 8px; }
     .btn-reset:active { opacity: 0.7; }
 
     /* Expense List */
@@ -798,7 +783,6 @@
     <div class="section">
       <div class="section-title">Expenses</div>
       <div class="expenses-list" id="expensesList"></div>
-      <button class="btn-save-week" id="saveWeekBtn" onclick="saveWeek()" style="display:none;">💾 Save Week &amp; Start Fresh</button>
       <button class="btn-reset" id="resetBtn" onclick="confirmReset()" style="display:none;">Reset Without Saving</button>
     </div>
 
@@ -1088,7 +1072,6 @@
 
       if (!hasExpenses) {
         list.innerHTML = `<div class="empty-state"><div class="icon">💸</div><p>No expenses yet.<br>Add your first expense above.</p></div>`;
-        document.getElementById('saveWeekBtn').style.display = (hasSavings ? 'block' : 'none');
         document.getElementById('resetBtn').style.display = (hasSavings ? 'block' : 'none');
       } else {
         list.innerHTML = state.expenses.slice().reverse().map(exp => {
@@ -1106,7 +1089,6 @@
               <button class="btn-delete" onclick="deleteExpense('${exp.id}')" aria-label="Delete">✕</button>
             </div>`;
         }).join('');
-        document.getElementById('saveWeekBtn').style.display = 'block';
         document.getElementById('resetBtn').style.display = 'block';
       }
 
@@ -1652,6 +1634,7 @@
       state.expenses = [];
       state.savings = [];
       state.incomeLog = [];
+      state.weekStartedAt = new Date().toISOString();
       saveState();
       render();
       showToast('Week saved! Starting fresh.');
@@ -1841,17 +1824,83 @@
       });
     }
 
-    async function confirmReset() {
-      const ok = await showModal('Reset without saving?', 'All current expenses will be permanently lost.', 'Reset');
-      if (ok) {
-        state.salary = 0;
-        state.expenses = [];
-        state.savings = [];
+    function confirmReset() {
+      const snapshot = {
+        salary:    state.salary,
+        expenses:  JSON.parse(JSON.stringify(state.expenses)),
+        savings:   JSON.parse(JSON.stringify(state.savings || [])),
+        incomeLog: JSON.parse(JSON.stringify(state.incomeLog || [])),
+      };
+      state.salary    = 0;
+      state.expenses  = [];
+      state.savings   = [];
+      state.incomeLog = [];
+      state.weekStartedAt = new Date().toISOString();
+      saveState();
+      render();
+      showToast('Slate cleared', () => {
+        state.salary    = snapshot.salary;
+        state.expenses  = snapshot.expenses;
+        state.savings   = snapshot.savings;
+        state.incomeLog = snapshot.incomeLog;
         saveState();
         render();
-        showToast('Slate cleared');
+        showToast('Reset undone');
+      });
+    }
+
+    // ── Auto-save every Monday at 12 AM (device time) ──────────────────
+    function getLastMonday12AM() {
+      const now  = new Date();
+      const diff = now.getDay() === 0 ? 6 : now.getDay() - 1; // days since Mon
+      const mon  = new Date(now);
+      mon.setDate(now.getDate() - diff);
+      mon.setHours(0, 0, 0, 0);
+      return mon;
+    }
+
+    function checkAutoSave() {
+      const hasData = state.expenses.length > 0 || (state.savings && state.savings.length > 0);
+      if (!hasData) return;
+      const monday = getLastMonday12AM();
+      const weekStart = state.weekStartedAt ? new Date(state.weekStartedAt) : null;
+      // Auto-save if the current week started before the last Monday 12 AM
+      if (!weekStart || weekStart < monday) {
+        const now   = new Date();
+        const label = 'Week of ' + monday.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
+        if (!state.history)   state.history   = [];
+        if (!state.savings)   state.savings   = [];
+        if (!state.incomeLog) state.incomeLog = [];
+        const totalSpent   = state.expenses.reduce((s, e) => s + e.amount, 0);
+        const totalSavings = state.savings.reduce((s, e) => s + e.amount, 0);
+        const remaining    = state.salary - totalSpent - totalSavings;
+        state.history.push({
+          label,
+          savedAt:   now.toISOString(),
+          salary:    state.salary,
+          expenses:  [...state.expenses],
+          savings:   [...state.savings],
+          incomeLog: [...state.incomeLog],
+        });
+        state.salary    = remaining > 0 ? remaining : 0;
+        state.expenses  = [];
+        state.savings   = [];
+        state.incomeLog = [];
+        state.weekStartedAt = now.toISOString();
+        saveState();
+        render();
+        showToast('Week auto-saved! Starting fresh 🗓️');
       }
     }
+
+    // Set weekStartedAt on first load if not present
+    if (!state.weekStartedAt) {
+      state.weekStartedAt = new Date().toISOString();
+      saveState();
+    }
+
+    checkAutoSave();
+    setInterval(checkAutoSave, 60 * 1000);
 
     let toastTimer;
     let _toastUndoFn = null;
