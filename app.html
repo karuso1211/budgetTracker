@@ -1155,8 +1155,9 @@
       d.payments.push({ id: Date.now().toString(), amount: remaining, type: 'full', date: new Date().toISOString() });
       d.remaining = 0;
       d.completed = true;
+      state.salary = +(state.salary - remaining).toFixed(2);
       saveState();
-      renderDebts();
+      render();
       showToast('Debt fully paid! 🎉');
     }
 
@@ -1180,9 +1181,10 @@
       if (!d.payments) d.payments = [];
       d.payments.push({ id: Date.now().toString(), amount: paid, type: 'partial', date: new Date().toISOString() });
       d.remaining = +(remaining - paid).toFixed(2);
+      state.salary = +(state.salary - paid).toFixed(2);
       input.value = '';
       saveState();
-      renderDebts();
+      render();
       showToast(`Payment recorded — ${fmt(d.remaining)} remaining`);
     }
 
@@ -1216,8 +1218,9 @@
       d.payments = d.payments.filter(p => p.id !== paymentId);
       d.remaining = +((d.remaining ?? 0) + payment.amount).toFixed(2);
       d.completed = d.remaining <= 0;
+      state.salary = +(state.salary + payment.amount).toFixed(2);
       saveState();
-      renderDebts();
+      render();
       const dexp = document.getElementById('dexp-' + debtId);
       const dchev = document.getElementById('dchev-' + debtId);
       if (dexp) { dexp.classList.add('open'); if (dchev) dchev.classList.add('open'); }
