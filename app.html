@@ -215,6 +215,44 @@
     .bill-due.overdue { color: var(--red); font-weight: 600; }
     .bill-due.soon { color: var(--yellow); font-weight: 600; }
     .bill-amount { font-size: 16px; font-weight: 700; color: var(--yellow); flex-shrink: 0; }
+    .debt-amount { font-size: 16px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+    .debt-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(248,113,113,0.15); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .debt-icon.done { background: rgba(34,197,94,0.15); }
+    .debt-card.done { border-color: rgba(34,197,94,0.3); }
+    .debt-card.done .debt-amount { color: var(--green); text-decoration: line-through; }
+    .debt-remaining { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .debt-expand { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .debt-expand.open { max-height: 700px; border-top: 1px solid var(--border); }
+    .debt-expand-inner { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .debt-done-badge { display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(34,197,94,0.12); color: var(--green); font-size: 14px; font-weight: 700; border-radius: 10px; padding: 11px; }
+    .debt-pay-hist { margin-top: 4px; display: flex; flex-direction: column; gap: 6px; }
+    .debt-pay-hist-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 2px; }
+    .debt-pay-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; background: var(--surface2); border-radius: 8px; }
+    .debt-pay-item-left { display: flex; flex-direction: column; }
+    .debt-pay-item-type { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+    .debt-pay-item-type.full { color: var(--green); }
+    .debt-pay-item-type.partial { color: var(--blue); }
+    .debt-pay-item-date { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .debt-pay-item-amount { font-size: 14px; font-weight: 700; color: var(--green); flex-shrink: 0; }
+
+    /* Spending Stats */
+    .stats-period-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .stats-period-btn { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 13px; font-weight: 600; border-radius: 10px; padding: 10px; cursor: pointer; transition: all 0.15s; }
+    .stats-period-btn:active { opacity: 0.8; }
+    .stats-period-btn.active { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.4); color: var(--blue); }
+    .stats-chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 12px 12px; }
+    .stats-chart-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; }
+    .stats-canvas { display: block; width: 100%; }
+    .stats-summary-row { display: flex; gap: 8px; margin-top: 12px; }
+    .stats-sum-card { flex: 1; background: var(--surface2); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+    .stats-sum-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stats-sum-value { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stats-sum-value.r { color: var(--red); }
+    .stats-sum-value.g { color: var(--green); }
+    .stats-sum-value.y { color: var(--yellow); }
+    .stats-empty { text-align: center; padding: 40px 16px; color: var(--muted); font-size: 14px; }
+    .btn-revert-pay { background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 600; border-radius: 6px; padding: 3px 7px; cursor: pointer; flex-shrink: 0; transition: color 0.15s, border-color 0.15s; }
+    .btn-revert-pay:active { color: var(--red); border-color: var(--red); }
     .bill-chevron { color: var(--muted); font-size: 11px; margin-left: 2px; transition: transform 0.2s; flex-shrink: 0; }
     .bill-chevron.open { transform: rotate(180deg); }
     .bill-expand { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
@@ -405,14 +443,37 @@
     /* Category colors */
     .cat-food { background: rgba(251,191,36,0.15); }
     .cat-transport { background: rgba(96,165,250,0.15); }
-    .cat-shopping { background: rgba(167,139,250,0.15); }
-    .cat-bills { background: rgba(248,113,113,0.15); }
     .cat-health { background: rgba(34,197,94,0.15); }
     .cat-entertainment { background: rgba(251,146,60,0.15); }
     .cat-other { background: rgba(148,163,184,0.15); }
     .cat-savings { background: rgba(34,197,94,0.18); }
 
     /* Savings Card */
+    /* Spending quick card */
+    .spending-quick-card {
+      margin: 12px 16px 0;
+      background: linear-gradient(135deg, #1a1040 0%, #1e293b 100%);
+      border: 1px solid rgba(96,165,250,0.25);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      -webkit-user-select: none; user-select: none;
+      transition: opacity 0.15s;
+    }
+    .spending-quick-card:active { opacity: 0.75; }
+    .spending-quick-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .spending-quick-title { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; }
+    .spending-quick-link { font-size: 11px; color: var(--muted); }
+    .spending-quick-total { font-size: 26px; font-weight: 800; color: var(--red); letter-spacing: -0.5px; line-height: 1; margin-bottom: 12px; }
+    .spending-quick-cats { display: flex; flex-direction: column; gap: 6px; }
+    .spending-quick-row { display: flex; align-items: center; gap: 8px; }
+    .spending-quick-cat-name { font-size: 12px; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .spending-quick-bar-wrap { flex: 2; height: 5px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+    .spending-quick-bar { height: 100%; border-radius: 99px; background: rgba(96,165,250,0.7); }
+    .spending-quick-bar.top { background: rgba(34,197,94,0.8); }
+    .spending-quick-amt { font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+    .spending-quick-empty { font-size: 13px; color: var(--muted); text-align: center; padding: 8px 0 2px; }
+
     .savings-card {
       margin: 16px 16px 0;
       background: linear-gradient(135deg, #14532d 0%, #1e293b 100%);
@@ -496,6 +557,7 @@
     }
     .sidebar-btn .s-icon { font-size: 18px; flex-shrink: 0; }
 
+
     /* Left-edge swipe hint */
     .swipe-edge-hint {
       position: fixed;
@@ -559,6 +621,12 @@
       <button class="sidebar-btn" id="navBills" onclick="switchView('bills')">
         <span class="s-icon">🧾</span> Bills
       </button>
+      <button class="sidebar-btn" id="navDebt" onclick="switchView('debt')">
+        <span class="s-icon">💳</span> Debt
+      </button>
+      <button class="sidebar-btn" id="navStats" onclick="switchView('stats')">
+        <span class="s-icon">📈</span> Spending Stats
+      </button>
     </nav>
   </aside>
 
@@ -581,7 +649,7 @@
       <div class="balance-amount" id="overviewBalance">&#8369;0.00</div>
       <div class="balance-row">
         <div class="balance-stat">
-          <div class="stat-label">Initial Balance</div>
+          <div class="stat-label">This week's balance</div>
           <div class="stat-value income" id="incomeDisplay">&#8369;0.00</div>
         </div>
         <div class="balance-stat">
@@ -617,6 +685,18 @@
       </div>
     </div>
 
+    <!-- Spending Quick Card -->
+    <div class="spending-quick-card" id="spendingQuickCard" onclick="switchView('stats')">
+      <div class="spending-quick-header">
+        <span class="spending-quick-title">📈 Spending Stats</span>
+        <span class="spending-quick-link">View all →</span>
+      </div>
+      <div class="spending-quick-total" id="sqTotal">₱0.00</div>
+      <div class="spending-quick-cats" id="sqCats">
+        <div class="spending-quick-empty">No expenses yet</div>
+      </div>
+    </div>
+
   </div><!-- /viewOverview -->
 
   <!-- Budget Tracker View -->
@@ -634,7 +714,7 @@
       <div class="salary-panel">
         <div class="salary-display">
           <div>
-            <div class="current-label">Initial Balance</div>
+            <div class="current-label">This week's balance</div>
             <div class="current" id="salaryDisplay">&#8369;0.00</div>
           </div>
           <div class="btn-group">
@@ -668,8 +748,6 @@
         <select id="expenseCategory">
           <option value="food">🍔 Food</option>
           <option value="transport">🚗 Transport</option>
-          <option value="shopping">🛍 Shopping</option>
-          <option value="bills">💡 Bills</option>
           <option value="health">💊 Health</option>
           <option value="entertainment">🎮 Entertainment</option>
           <option value="savings">🐷 Savings</option>
@@ -731,6 +809,57 @@
 
   </div><!-- /viewBills -->
 
+  <!-- Debt View -->
+  <div class="view" id="viewDebt">
+
+    <!-- Add Debt -->
+    <div class="section">
+      <div class="section-title">Add Debt</div>
+      <div class="add-panel">
+        <input type="text" id="debtName" placeholder="Who do you owe / what for?" maxlength="50">
+        <input type="text" id="debtAmount" placeholder="How much?" inputmode="decimal" pattern="[0-9]*\.?[0-9]*">
+        <button class="btn-primary" onclick="addDebt()">+ Add Debt</button>
+      </div>
+    </div>
+
+    <!-- Debts List -->
+    <div class="section">
+      <div class="section-title">Your Debts</div>
+      <div class="bills-list" id="debtList"></div>
+    </div>
+
+  </div><!-- /viewDebt -->
+
+  <!-- Spending Stats View -->
+  <div class="view" id="viewStats">
+    <div class="section">
+      <div class="section-title">Spending Graph</div>
+      <div class="stats-chart-wrap">
+        <div class="stats-period-row">
+          <button type="button" class="stats-period-btn active" id="spDaily"   onclick="setSpendingPeriod('daily')">Daily</button>
+          <button type="button" class="stats-period-btn"        id="spWeekly"  onclick="setSpendingPeriod('weekly')">Weekly</button>
+          <button type="button" class="stats-period-btn"        id="spMonthly" onclick="setSpendingPeriod('monthly')">Monthly</button>
+        </div>
+        <div class="stats-chart-label" id="spChartLabel">Last 7 Days</div>
+        <canvas class="stats-canvas" id="spendingChart" height="200"></canvas>
+        <div class="stats-summary-row">
+          <div class="stats-sum-card">
+            <div class="stats-sum-label" id="spLabelTotal">Total</div>
+            <div class="stats-sum-value r" id="spValTotal">₱0.00</div>
+          </div>
+          <div class="stats-sum-card">
+            <div class="stats-sum-label" id="spLabelAvg">Daily Avg</div>
+            <div class="stats-sum-value" id="spValAvg">₱0.00</div>
+          </div>
+          <div class="stats-sum-card">
+            <div class="stats-sum-label">Peak</div>
+            <div class="stats-sum-value y" id="spValPeak">₱0.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /viewStats -->
+
   <!-- Modal -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
@@ -766,8 +895,7 @@
     const CATEGORY = {
       food:          { icon: '🍔', cls: 'cat-food' },
       transport:     { icon: '🚗', cls: 'cat-transport' },
-      shopping:      { icon: '🛍', cls: 'cat-shopping' },
-      bills:         { icon: '💡', cls: 'cat-bills' },
+
       health:        { icon: '💊', cls: 'cat-health' },
       entertainment: { icon: '🎮', cls: 'cat-entertainment' },
       savings:       { icon: '🐷', cls: 'cat-savings' },
@@ -781,7 +909,7 @@
         const s = localStorage.getItem('budgetTracker');
         if (s) return JSON.parse(s);
       } catch {}
-      return { salary: 0, expenses: [], savings: [], history: [], bills: [], billHistory: [] };
+      return { salary: 0, expenses: [], savings: [], history: [], bills: [], billHistory: [], debts: [] };
     }
 
     function saveState() {
@@ -790,6 +918,7 @@
       if (!state.incomeLog) state.incomeLog = [];
       if (!state.bills) state.bills = [];
       if (!state.billHistory) state.billHistory = [];
+      if (!state.debts) state.debts = [];
       localStorage.setItem('budgetTracker', JSON.stringify(state));
     }
 
@@ -846,12 +975,11 @@
       // Render savings card
       const savingsCard = document.getElementById('savingsCard');
       const savingsList = document.getElementById('savingsList');
+      savingsCard.classList.remove('hidden');
+      document.getElementById('savingsCardAmount').textContent = fmt(totalSavings);
       if (state.savings.length === 0) {
-        savingsCard.classList.add('hidden');
         savingsList.innerHTML = '';
       } else {
-        savingsCard.classList.remove('hidden');
-        document.getElementById('savingsCardAmount').textContent = fmt(totalSavings);
         savingsList.innerHTML = state.savings.slice().reverse().map(sv => {
           const date = new Date(sv.date);
           const dateStr = date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -901,6 +1029,8 @@
       renderBillHistory();
       renderNextBill();
       renderLatestExpense();
+      renderSpendingQuickCard();
+      renderDebts();
     }
 
     function renderBills() {
@@ -947,6 +1077,185 @@
           </div>`;
       }).join('');
       renderNextBill();
+    }
+
+    function renderDebts() {
+      const list = document.getElementById('debtList');
+      if (!list) return;
+      const debts = state.debts || [];
+      if (debts.length === 0) {
+        list.innerHTML = `<div class="empty-state"><div class="icon">💳</div><p>No debts yet.<br>Add your first debt above.</p></div>`;
+        return;
+      }
+      list.innerHTML = debts.map(d => {
+        const remaining = d.remaining ?? d.amount;
+        const done = d.completed || remaining <= 0;
+        const payments = d.payments || [];
+        const histHtml = payments.length === 0 ? '' : `
+          <div class="debt-pay-hist">
+            <div class="debt-pay-hist-title">Payment History</div>
+            ${payments.slice().reverse().map(p => `
+              <div class="debt-pay-item">
+                <div class="debt-pay-item-left">
+                  <span class="debt-pay-item-type ${p.type}">${p.type === 'full' ? '✓ Paid in Full' : '⬤ Partial'}</span>
+                  <span class="debt-pay-item-date">${new Date(p.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+                <span class="debt-pay-item-amount">${fmt(p.amount)}</span>
+                <button class="btn-revert-pay" onclick="revertDebtPayment('${d.id}', '${p.id}', event)" title="Undo">↩ Undo</button>
+              </div>`).join('')}
+          </div>`;
+        const actionsHtml = done
+          ? `<div class="debt-done-badge">✓ Debt fully paid</div>`
+          : `<button class="btn-bill-paid" onclick="markDebtPaidFull('${d.id}', event)">✓ Pay in Full</button>
+             <button class="btn-bill-partial" onclick="showDebtPartial('${d.id}', event)">⬤ Partial Payment</button>
+             <div class="partial-row" id="dpart-${d.id}">
+               <div class="partial-row-inner">
+                 <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder="Amount paid">
+                 <button class="btn-partial-ok" onclick="confirmDebtPartial('${d.id}', event)">OK</button>
+               </div>
+             </div>`;
+        return `
+          <div class="bill-card debt-card${done ? ' done' : ''}" id="dcard-${d.id}">
+            <div class="bill-row" onclick="toggleDebtExpand('${d.id}')">
+              <div class="debt-icon${done ? ' done' : ''}">💳</div>
+              <div class="bill-info">
+                <div class="bill-name">${escHtml(d.name)}</div>
+                ${!done ? `<div class="debt-remaining">Remaining: ${fmt(remaining)}</div>` : `<div class="debt-remaining" style="color:var(--green)">Fully paid</div>`}
+              </div>
+              <div class="debt-amount">${fmt(d.amount)}</div>
+              <span class="bill-chevron" id="dchev-${d.id}">▼</span>
+              <button class="btn-delete" onclick="deleteDebt('${d.id}'); event.stopPropagation();" aria-label="Delete">✕</button>
+            </div>
+            <div class="debt-expand" id="dexp-${d.id}">
+              <div class="debt-expand-inner">
+                ${d.createdAt ? `<div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Added on ${new Date(d.createdAt).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}</div>` : ''}
+                ${actionsHtml}
+                ${histHtml}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function toggleDebtExpand(id) {
+      const exp = document.getElementById('dexp-' + id);
+      const chev = document.getElementById('dchev-' + id);
+      if (!exp) return;
+      const opening = !exp.classList.contains('open');
+      exp.classList.toggle('open', opening);
+      chev.classList.toggle('open', opening);
+    }
+
+    function markDebtPaidFull(id, e) {
+      e.stopPropagation();
+      const d = (state.debts || []).find(x => x.id === id);
+      if (!d) return;
+      const remaining = d.remaining ?? d.amount;
+      if (!d.payments) d.payments = [];
+      d.payments.push({ id: Date.now().toString(), amount: remaining, type: 'full', date: new Date().toISOString() });
+      d.remaining = 0;
+      d.completed = true;
+      saveState();
+      renderDebts();
+      showToast('Debt fully paid! 🎉');
+    }
+
+    function showDebtPartial(id, e) {
+      e.stopPropagation();
+      const row = document.getElementById('dpart-' + id);
+      if (!row) return;
+      row.classList.toggle('open');
+      if (row.classList.contains('open')) row.querySelector('input').focus();
+    }
+
+    function confirmDebtPartial(id, e) {
+      e.stopPropagation();
+      const d = (state.debts || []).find(x => x.id === id);
+      if (!d) return;
+      const input = document.getElementById('dpart-' + id).querySelector('input');
+      const paid = parseFloat(input.value);
+      const remaining = d.remaining ?? d.amount;
+      if (isNaN(paid) || paid <= 0) { showToast('Enter a valid amount'); input.focus(); return; }
+      if (paid >= remaining) { showToast('Use "Pay in Full" to clear the remaining balance'); return; }
+      if (!d.payments) d.payments = [];
+      d.payments.push({ id: Date.now().toString(), amount: paid, type: 'partial', date: new Date().toISOString() });
+      d.remaining = +(remaining - paid).toFixed(2);
+      input.value = '';
+      saveState();
+      renderDebts();
+      showToast(`Payment recorded — ${fmt(d.remaining)} remaining`);
+    }
+
+    function addDebt() {
+      const name = document.getElementById('debtName').value.trim();
+      const amount = parseFloat(document.getElementById('debtAmount').value);
+      if (!name) { showToast('Please enter a name or description'); document.getElementById('debtName').focus(); return; }
+      if (isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount'); document.getElementById('debtAmount').focus(); return; }
+      if (!state.debts) state.debts = [];
+      state.debts.push({ id: Date.now().toString(), name, amount, remaining: amount, payments: [], completed: false, createdAt: new Date().toISOString() });
+      saveState();
+      renderDebts();
+      document.getElementById('debtName').value = '';
+      document.getElementById('debtAmount').value = '';
+      showToast('Debt added!');
+    }
+
+    function deleteDebt(id) {
+      state.debts = (state.debts || []).filter(d => d.id !== id);
+      saveState();
+      renderDebts();
+      showToast('Debt removed');
+    }
+
+    function revertDebtPayment(debtId, paymentId, e) {
+      e.stopPropagation();
+      const d = (state.debts || []).find(x => x.id === debtId);
+      if (!d || !d.payments) return;
+      const payment = d.payments.find(p => p.id === paymentId);
+      if (!payment) return;
+      d.payments = d.payments.filter(p => p.id !== paymentId);
+      d.remaining = +((d.remaining ?? 0) + payment.amount).toFixed(2);
+      d.completed = d.remaining <= 0;
+      saveState();
+      renderDebts();
+      const dexp = document.getElementById('dexp-' + debtId);
+      const dchev = document.getElementById('dchev-' + debtId);
+      if (dexp) { dexp.classList.add('open'); if (dchev) dchev.classList.add('open'); }
+      showToast('Payment reverted');
+    }
+
+    function renderSpendingQuickCard() {
+      const totalEl = document.getElementById('sqTotal');
+      const catsEl  = document.getElementById('sqCats');
+      if (!totalEl || !catsEl) return;
+
+      const expenses = state.expenses || [];
+      const total = expenses.reduce((s, e) => s + e.amount, 0);
+      totalEl.textContent = fmt(total);
+
+      if (expenses.length === 0) {
+        catsEl.innerHTML = '<div class="spending-quick-empty">No expenses yet</div>';
+        return;
+      }
+
+      const totals = {};
+      expenses.forEach(e => { totals[e.category] = (totals[e.category] || 0) + e.amount; });
+      const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      const max = sorted[0][1];
+
+      catsEl.innerHTML = sorted.map(([cat, amt], i) => {
+        const info = CATEGORY[cat] || CATEGORY.other;
+        const pct  = max > 0 ? (amt / max) * 100 : 0;
+        const label = info.icon + ' ' + cat.charAt(0).toUpperCase() + cat.slice(1);
+        return `
+          <div class="spending-quick-row">
+            <span class="spending-quick-cat-name">${label}</span>
+            <div class="spending-quick-bar-wrap">
+              <div class="spending-quick-bar${i === 0 ? ' top' : ''}" style="width:${pct}%"></div>
+            </div>
+            <span class="spending-quick-amt">${fmt(amt)}</span>
+          </div>`;
+      }).join('');
     }
 
     function renderLatestExpense() {
@@ -1165,11 +1474,14 @@
 
         const expRows = week.expenses.length === 0
           ? '<div style="color:var(--muted);font-size:13px;">No expenses recorded.</div>'
-          : week.expenses.map(e => `
+          : week.expenses.map(e => {
+              const cat = CATEGORY[e.category] || CATEGORY.other;
+              return `
               <div class="history-exp-item">
-                <span class="name">${escHtml(e.name)}</span>
+                <span class="name">${cat.icon} ${escHtml(e.name)}</span>
                 <span class="amt">${fmt(e.amount)}</span>
-              </div>`).join('');
+              </div>`;
+            }).join('');
 
         const savRows = (week.savings || []).length === 0 ? '' : `
           <div class="history-stat-row" style="margin-top:6px;"><span class="lbl" style="font-weight:700;">Savings</span></div>
@@ -1349,8 +1661,15 @@
 
       if (category === 'savings') {
         if (!state.savings) state.savings = [];
-        state.savings.push(entry);
-        showToast('Saved to Savings! 🐷');
+        const existing = state.savings.find(s => s.name.toLowerCase() === name.toLowerCase());
+        if (existing) {
+          existing.amount = +(existing.amount + amount).toFixed(2);
+          existing.date = entry.date;
+          showToast('Added to existing savings! 🐷');
+        } else {
+          state.savings.push(entry);
+          showToast('Saved to Savings! 🐷');
+        }
       } else {
         state.expenses.push(entry);
         showToast('Expense added!');
@@ -1488,20 +1807,225 @@
     }
 
     let activeView = 'overview';
+    let _spendingPeriod = 'daily';
+
+    function setSpendingPeriod(period) {
+      _spendingPeriod = period;
+      ['daily', 'weekly', 'monthly'].forEach(p => {
+        const id = 'sp' + p.charAt(0).toUpperCase() + p.slice(1);
+        document.getElementById(id).classList.toggle('active', p === period);
+      });
+      drawSpendingChart(period);
+    }
+
+    function getSpendingData(period) {
+      const expenses = state.expenses || [];
+      const now = new Date();
+
+      if (period === 'daily') {
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(now);
+          d.setDate(d.getDate() - i);
+          d.setHours(0, 0, 0, 0);
+          days.push({ label: d.toLocaleDateString('en-PH', { weekday: 'short' }), total: 0, key: d.toDateString() });
+        }
+        expenses.forEach(e => {
+          const key = new Date(e.date).toDateString();
+          const slot = days.find(d => d.key === key);
+          if (slot) slot.total += e.amount;
+        });
+        return days;
+      }
+
+      if (period === 'weekly') {
+        const getMonday = d => { const c = new Date(d); const day = c.getDay(); c.setDate(c.getDate() - (day === 0 ? 6 : day - 1)); c.setHours(0,0,0,0); return c; };
+        const weeks = [];
+        for (let i = 7; i >= 0; i--) {
+          const ref = new Date(now); ref.setDate(ref.getDate() - i * 7);
+          const start = getMonday(ref);
+          const end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23,59,59,999);
+          const key = start.getTime();
+          if (!weeks.find(w => w.key === key))
+            weeks.push({ label: start.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }), total: 0, key, startTs: start.getTime(), endTs: end.getTime() });
+        }
+        expenses.forEach(e => {
+          const ts = new Date(e.date).getTime();
+          weeks.forEach(w => { if (ts >= w.startTs && ts <= w.endTs) w.total += e.amount; });
+        });
+        return weeks;
+      }
+
+      if (period === 'monthly') {
+        const months = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          months.push({ label: d.toLocaleDateString('en-PH', { month: 'short' }), total: 0, year: d.getFullYear(), month: d.getMonth() });
+        }
+        expenses.forEach(e => {
+          const ed = new Date(e.date);
+          const slot = months.find(m => m.year === ed.getFullYear() && m.month === ed.getMonth());
+          if (slot) slot.total += e.amount;
+        });
+        return months;
+      }
+
+      return [];
+    }
+
+    let _chartAnimId = null;
+
+    function drawSpendingChart(period) {
+      const canvas = document.getElementById('spendingChart');
+      if (!canvas || !canvas.offsetParent) return;
+
+      const data = getSpendingData(period);
+      const total = data.reduce((s, d) => s + d.total, 0);
+      const peak  = data.length ? Math.max(...data.map(d => d.total)) : 0;
+      const avg   = data.length ? total / data.length : 0;
+
+      const periodMeta = {
+        daily:   { chartLabel: 'Last 7 Days',   totalLabel: '7-Day Total', avgLabel: 'Daily Avg' },
+        weekly:  { chartLabel: 'Last 8 Weeks',  totalLabel: '8-Wk Total',  avgLabel: 'Weekly Avg' },
+        monthly: { chartLabel: 'Last 6 Months', totalLabel: '6-Mo Total',  avgLabel: 'Monthly Avg' },
+      };
+      const meta = periodMeta[period];
+      document.getElementById('spChartLabel').textContent = meta.chartLabel;
+      document.getElementById('spLabelTotal').textContent = meta.totalLabel;
+      document.getElementById('spLabelAvg').textContent   = meta.avgLabel;
+      document.getElementById('spValTotal').textContent   = fmt(total);
+      document.getElementById('spValAvg').textContent     = fmt(avg);
+      document.getElementById('spValPeak').textContent    = fmt(peak);
+
+      const dpr  = window.devicePixelRatio || 1;
+      const cssW = canvas.offsetWidth;
+      const cssH = 200;
+      canvas.width  = cssW * dpr;
+      canvas.height = cssH * dpr;
+      canvas.style.height = cssH + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const padL = 48, padR = 8, padT = 12, padB = 32;
+      const chartW = cssW - padL - padR;
+      const chartH = cssH - padT - padB;
+
+      const C_GRID   = '#334155';
+      const C_MUTED  = '#94a3b8';
+      const C_BAR    = '#60a5fa';
+      const C_PEAK   = '#22c55e';
+      const C_BAR_BG = 'rgba(96,165,250,0.07)';
+
+      const maxVal   = peak > 0 ? peak * 1.25 : 1000;
+      const gridLines = 4;
+      const n   = data.length;
+      const gap = 5;
+      const barW = (chartW - gap * (n - 1)) / n;
+
+      function frame(progress) {
+        // ease-out cubic
+        const p = 1 - Math.pow(1 - progress, 3);
+
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        // Y-axis grid + labels
+        ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= gridLines; i++) {
+          const y = padT + chartH - (i / gridLines) * chartH;
+          const val = (i / gridLines) * maxVal;
+          ctx.strokeStyle = C_GRID;
+          ctx.globalAlpha = i === 0 ? 0.6 : 0.25;
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + chartW, y); ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = C_MUTED;
+          const yLabel = val >= 1000 ? '₱' + (val / 1000).toFixed(val >= 10000 ? 0 : 1) + 'k' : '₱' + Math.round(val);
+          ctx.fillText(yLabel, padL - 5, y + 3.5);
+        }
+
+        // Bars
+        data.forEach((d, i) => {
+          const x    = padL + i * (barW + gap);
+          const fullH = maxVal > 0 ? (d.total / maxVal) * chartH : 0;
+          const barH  = fullH * p;
+          const y     = padT + chartH - barH;
+          const isPeak = d.total > 0 && d.total === peak;
+
+          // bg slot
+          ctx.fillStyle = C_BAR_BG;
+          fillRoundRect(ctx, x, padT, barW, chartH, 5);
+          ctx.fill();
+
+          // value bar
+          if (d.total > 0) {
+            ctx.fillStyle = isPeak ? C_PEAK : C_BAR;
+            ctx.globalAlpha = isPeak ? p : p * 0.9;
+            fillRoundRect(ctx, x, y, barW, barH, 5);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+
+          // x label
+          ctx.fillStyle = C_MUTED;
+          ctx.globalAlpha = p;
+          ctx.textAlign = 'center';
+          ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillText(d.label, x + barW / 2, cssH - padB + 14);
+          ctx.globalAlpha = 1;
+        });
+      }
+
+      // Cancel any running animation then start fresh
+      if (_chartAnimId) cancelAnimationFrame(_chartAnimId);
+      const DURATION = 600;
+      const startTime = performance.now();
+
+      function animate(now) {
+        const progress = Math.min((now - startTime) / DURATION, 1);
+        frame(progress);
+        if (progress < 1) _chartAnimId = requestAnimationFrame(animate);
+        else _chartAnimId = null;
+      }
+
+      _chartAnimId = requestAnimationFrame(animate);
+    }
+
+    function fillRoundRect(ctx, x, y, w, h, r) {
+      r = Math.min(r, w / 2, Math.max(h / 2, 0));
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
     function switchView(view) {
       activeView = view;
       document.getElementById('viewOverview').classList.toggle('active', view === 'overview');
       document.getElementById('viewTracker').classList.toggle('active', view === 'tracker');
       document.getElementById('viewHistory').classList.toggle('active', view === 'history');
       document.getElementById('viewBills').classList.toggle('active', view === 'bills');
+      document.getElementById('viewDebt').classList.toggle('active', view === 'debt');
+      document.getElementById('viewStats').classList.toggle('active', view === 'stats');
       document.getElementById('navOverview').classList.toggle('active', view === 'overview');
       document.getElementById('navTracker').classList.toggle('active', view === 'tracker');
       document.getElementById('navHistory').classList.toggle('active', view === 'history');
       document.getElementById('navBills').classList.toggle('active', view === 'bills');
-      const titles = { overview: 'Overview', tracker: 'Budget Tracker', history: 'History', bills: 'Bills' };
+      document.getElementById('navDebt').classList.toggle('active', view === 'debt');
+      document.getElementById('navStats').classList.toggle('active', view === 'stats');
+      const titles = { overview: 'Overview', tracker: 'Budget Tracker', history: 'History', bills: 'Bills', debt: 'Debt', stats: 'Spending Stats' };
       document.getElementById('headerTitle').textContent = titles[view] || 'Budget Tracker';
       closeSidebar();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (view === 'stats') requestAnimationFrame(() => drawSpendingChart(_spendingPeriod));
     }
 
     // Swipe gestures for sidebar
