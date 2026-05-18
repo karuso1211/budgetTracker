@@ -970,7 +970,7 @@
         const s = localStorage.getItem('budgetTracker');
         if (s) return JSON.parse(s);
       } catch {}
-      return { salary: 0, expenses: [], savings: [], history: [], bills: [], billHistory: [], debts: [], deletedSavingKeys: [] };
+      return { salary: 0, expenses: [], savings: [], history: [], bills: [], billHistory: [], debts: [], deletedSavingKeys: [], totalSavedAmount: 0 };
     }
 
     function saveState() {
@@ -981,6 +981,7 @@
       if (!state.billHistory) state.billHistory = [];
       if (!state.debts) state.debts = [];
       if (!state.deletedSavingKeys) state.deletedSavingKeys = [];
+      if (state.totalSavedAmount === undefined) state.totalSavedAmount = 0;
       localStorage.setItem('budgetTracker', JSON.stringify(state));
     }
 
@@ -1019,6 +1020,7 @@
 
       const totalExpenses = state.expenses.reduce((s, e) => s + e.amount, 0);
       const totalSavings = state.savings.reduce((s, e) => s + e.amount, 0);
+      const grandTotalSavings = (state.totalSavedAmount || 0) + totalSavings;
       const balance = state.salary - totalExpenses - totalSavings;
 
       const balEl = document.getElementById('balanceDisplay');
@@ -1031,14 +1033,14 @@
       const spendable = state.salary - totalSavings;
       document.getElementById('incomeDisplay').textContent = fmt(spendable);
       document.getElementById('expenseDisplay').textContent = fmt(totalExpenses);
-      document.getElementById('savingsDisplay').textContent = fmt(totalSavings);
+      document.getElementById('savingsDisplay').textContent = fmt(grandTotalSavings);
       document.getElementById('salaryDisplay').textContent = fmt(spendable);
 
       // Render savings card
       const savingsCard = document.getElementById('savingsCard');
       const savingsList = document.getElementById('savingsList');
       savingsCard.classList.remove('hidden');
-      document.getElementById('savingsCardAmount').textContent = fmt(totalSavings);
+      document.getElementById('savingsCardAmount').textContent = fmt(grandTotalSavings);
       if (state.savings.length === 0) {
         savingsList.innerHTML = '';
       } else {
@@ -1630,6 +1632,7 @@
         incomeLog: [...state.incomeLog],
       });
 
+      state.totalSavedAmount = (state.totalSavedAmount || 0) + totalSavings;
       state.salary = remaining > 0 ? remaining : 0;
       state.expenses = [];
       state.savings = [];
@@ -1825,12 +1828,15 @@
     }
 
     function confirmReset() {
+      const weekSavings = (state.savings || []).reduce((s, e) => s + e.amount, 0);
       const snapshot = {
-        salary:    state.salary,
-        expenses:  JSON.parse(JSON.stringify(state.expenses)),
-        savings:   JSON.parse(JSON.stringify(state.savings || [])),
-        incomeLog: JSON.parse(JSON.stringify(state.incomeLog || [])),
+        salary:           state.salary,
+        expenses:         JSON.parse(JSON.stringify(state.expenses)),
+        savings:          JSON.parse(JSON.stringify(state.savings || [])),
+        incomeLog:        JSON.parse(JSON.stringify(state.incomeLog || [])),
+        totalSavedBefore: state.totalSavedAmount || 0,
       };
+      state.totalSavedAmount = (state.totalSavedAmount || 0) + weekSavings;
       state.salary    = 0;
       state.expenses  = [];
       state.savings   = [];
@@ -1839,10 +1845,11 @@
       saveState();
       render();
       showToast('Slate cleared', () => {
-        state.salary    = snapshot.salary;
-        state.expenses  = snapshot.expenses;
-        state.savings   = snapshot.savings;
-        state.incomeLog = snapshot.incomeLog;
+        state.salary          = snapshot.salary;
+        state.expenses        = snapshot.expenses;
+        state.savings         = snapshot.savings;
+        state.incomeLog       = snapshot.incomeLog;
+        state.totalSavedAmount = snapshot.totalSavedBefore;
         saveState();
         render();
         showToast('Reset undone');
@@ -1882,6 +1889,7 @@
           savings:   [...state.savings],
           incomeLog: [...state.incomeLog],
         });
+        state.totalSavedAmount = (state.totalSavedAmount || 0) + totalSavings;
         state.salary    = remaining > 0 ? remaining : 0;
         state.expenses  = [];
         state.savings   = [];
